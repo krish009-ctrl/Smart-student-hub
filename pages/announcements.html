@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Announcements — College Hub</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .ann-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.5rem; margin-bottom: 1rem; transition: all 0.25s;
+      position: relative; overflow: hidden;
+    }
+    .ann-card:hover { border-color: rgba(255,255,255,0.1); transform: translateX(4px); }
+    .ann-card.priority-high::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background: var(--red); }
+    .ann-card.priority-medium::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background: var(--orange); }
+    .ann-card.priority-low::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background: var(--green); }
+
+    .ann-header { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; }
+    .ann-title { font-family:var(--font-head); font-size:1.05rem; font-weight:700; color:var(--white); }
+    .ann-body { color:var(--muted); font-size:0.9rem; line-height:1.6; margin-bottom:12px; }
+    .ann-footer { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
+    .ann-meta { font-size:0.78rem; color:var(--muted); display:flex; align-items:center; gap:12px; }
+    .ann-badges { display:flex; gap:8px; align-items:center; }
+
+    .pinned-banner {
+      background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(249,115,22,0.1));
+      border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius);
+      padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 12px; font-size:0.9rem;
+    }
+    .type-select { display:flex; gap:6px; flex-wrap:wrap; margin-bottom: 1.5rem; }
+    .type-btn {
+      padding: 6px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 600;
+      border: 1px solid var(--border); background: var(--card); color: var(--muted);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .type-btn:hover, .type-btn.active { background: var(--card2); color: var(--text); border-color: rgba(255,255,255,0.15); }
+  </style>
+</head>
+<body>
+  <div id="nav-root"></div>
+  <div id="toast-container"></div>
+  <div class="page-wrapper">
+    <div class="container">
+      <div class="page-header">
+        <div class="breadcrumb"><a href="../index.html">Home</a> › Announcements</div>
+        <h1>📢 Announcements</h1>
+        <p>College notices, exam updates, and important messages from faculty</p>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:10px;">
+        <div class="type-select" id="type-select">
+          <button class="type-btn active" data-type="all">All</button>
+          <button class="type-btn" data-type="exam">📝 Exam</button>
+          <button class="type-btn" data-type="holiday">🎉 Holiday</button>
+          <button class="type-btn" data-type="assignment">📋 Assignment</button>
+          <button class="type-btn" data-type="general">📌 General</button>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">➕ Post Announcement</button>
+      </div>
+
+      <div id="pinned-area"></div>
+      <div id="ann-list"></div>
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <div class="empty-icon">📭</div>
+        <h3>No announcements</h3>
+        <p>Nothing posted yet. Be the first to add one!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="ann-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">📢 New Announcement</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="form-group"><label>Title *</label><input type="text" class="form-control" id="f-title" placeholder="e.g. Unit Test – Network Management"/></div>
+      <div class="form-group"><label>Message *</label><textarea class="form-control" id="f-body" rows="4" placeholder="Write the full announcement here..."></textarea></div>
+      <div class="form-group">
+        <label>Type</label>
+        <select class="form-control" id="f-type">
+          <option value="general">📌 General</option>
+          <option value="exam">📝 Exam</option>
+          <option value="assignment">📋 Assignment</option>
+          <option value="holiday">🎉 Holiday</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Priority</label>
+        <select class="form-control" id="f-priority">
+          <option value="low">🟢 Low</option>
+          <option value="medium">🟠 Medium</option>
+          <option value="high">🔴 High (Pinned)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Posted By</label><input type="text" class="form-control" id="f-author" placeholder="e.g. Prof. Sharma / Class Rep"/></div>
+      <div class="form-group"><label>Due Date / Event Date (optional)</label><input type="date" class="form-control" id="f-date"/></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" style="flex:1" onclick="saveAnn()">✅ Post</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script>
+    document.getElementById('nav-root').innerHTML = renderNav('Announcements');
+    let activeType = 'all';
+
+    document.querySelectorAll('.type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeType = btn.dataset.type;
+        renderAnns();
+      });
+    });
+
+    function openModal() { document.getElementById('ann-modal').classList.add('open'); }
+    function closeModal() { document.getElementById('ann-modal').classList.remove('open'); resetForm(); }
+
+    function saveAnn() {
+      const title = document.getElementById('f-title').value.trim();
+      const body = document.getElementById('f-body').value.trim();
+      if (!title || !body) { showToast('Title and message are required!','error'); return; }
+      const ann = {
+        id: Date.now(),
+        title, body,
+        type: document.getElementById('f-type').value,
+        priority: document.getElementById('f-priority').value,
+        author: document.getElementById('f-author').value.trim() || 'Admin',
+        dueDate: document.getElementById('f-date').value,
+        date: new Date().toISOString(),
+      };
+      const anns = getStore('ch_anns');
+      anns.unshift(ann);
+      setStore('ch_anns', anns);
+      showToast('Announcement posted! 📢','success');
+      closeModal(); renderAnns();
+    }
+
+    function deleteAnn(id) {
+      if (!confirm('Delete this announcement?')) return;
+      setStore('ch_anns', getStore('ch_anns').filter(a => a.id !== id));
+      showToast('Deleted.','info'); renderAnns();
+    }
+
+    function resetForm() {
+      ['f-title','f-body','f-author','f-date'].forEach(id => document.getElementById(id).value = '');
+    }
+
+    const typeEmoji = { exam:'📝', holiday:'🎉', assignment:'📋', general:'📌' };
+    const typeLabel = { exam:'Exam', holiday:'Holiday', assignment:'Assignment', general:'General' };
+    const typeBadge = { exam:'badge-red', holiday:'badge-green', assignment:'badge-blue', general:'badge-orange' };
+
+    function renderAnns() {
+      let anns = getStore('ch_anns');
+      if (activeType !== 'all') anns = anns.filter(a => a.type === activeType);
+
+      const pinned = anns.filter(a => a.priority === 'high');
+      const rest = anns.filter(a => a.priority !== 'high');
+
+      const pinnedArea = document.getElementById('pinned-area');
+      const list = document.getElementById('ann-list');
+      const empty = document.getElementById('empty-state');
+
+      pinnedArea.innerHTML = pinned.map(a => annCardHTML(a)).join('');
+      list.innerHTML = rest.map(a => annCardHTML(a)).join('');
+
+      if (!anns.length) { empty.style.display='block'; } else { empty.style.display='none'; }
+    }
+
+    function annCardHTML(a) {
+      return `<div class="ann-card priority-${a.priority}">
+        <div class="ann-header">
+          <div class="ann-title">${a.priority==='high'?'📌 ':''}${a.title}</div>
+          <div class="ann-badges">
+            <span class="badge ${typeBadge[a.type]||'badge-blue'}">${typeEmoji[a.type]} ${typeLabel[a.type]}</span>
+          </div>
+        </div>
+        <div class="ann-body">${a.body}</div>
+        <div class="ann-footer">
+          <div class="ann-meta">
+            <span>👤 ${a.author}</span>
+            <span>🕐 ${timeAgo(a.date)}</span>
+            ${a.dueDate ? `<span>📅 Due: ${formatDate(a.dueDate)}</span>` : ''}
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="deleteAnn(${a.id})">🗑️</button>
+        </div>
+      </div>`;
+    }
+
+    // Seed demo
+    if (!getStore('ch_anns').length) {
+      setStore('ch_anns', [
+        { id:1, title:'Unit Test – Network Management (Unit 1 & 2)', body:'Unit test will be held on 18th March 2025 in Room 101. Syllabus: Unit 1 and Unit 2. Please bring your admit cards.', type:'exam', priority:'high', author:'Prof. R. Sharma', dueDate:'2025-03-18', date:new Date().toISOString() },
+        { id:2, title:'Assignment Submission – Data & Info Security', body:'Submit your assignment on Cryptography (minimum 10 pages) by 15th March. Late submissions will not be accepted.', type:'assignment', priority:'medium', author:'Prof. A. Gupta', dueDate:'2025-03-15', date:new Date(Date.now()-3600000*5).toISOString() },
+        { id:3, title:'Holi Holiday – College Closed', body:'The college will remain closed on 14th March on account of Holi. Classes will resume on 17th March.', type:'holiday', priority:'low', author:'Principal Office', dueDate:'2025-03-14', date:new Date(Date.now()-86400000).toISOString() },
+        { id:4, title:'Practical File Submission Reminder', body:'All students must submit their practical files for Open Source Technologies by the end of this month. Incomplete files will lead to attendance shortage.', type:'general', priority:'medium', author:'Lab Instructor', dueDate:'', date:new Date(Date.now()-172800000).toISOString() },
+      ]);
+    }
+    renderAnns();
+  </script>
+</body>
+</html>

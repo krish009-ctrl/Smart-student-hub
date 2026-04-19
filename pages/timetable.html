@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timetable — College Hub</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .tt-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+
+    .tt-table th {
+      background: var(--card2);
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .tt-table td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      vertical-align: top;
+      min-width: 100px;
+    }
+
+    .tt-table .time-col {
+      background: var(--bg2);
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .tt-table .today-col {
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .tt-table .day-col.today {
+      color: var(--accent2) !important;
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    .class-slot {
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin: 2px 0;
+      border-left: 3px solid var(--subj-color, var(--accent));
+      background: rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .class-slot:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: scale(1.01);
+    }
+
+    .class-slot .cs-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    .class-slot .cs-room {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .free-slot {
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    .break-slot {
+      background: rgba(249, 115, 22, 0.06);
+      border-radius: 6px;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--orange);
+    }
+
+    .today-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 99px;
+      padding: 5px 14px;
+      font-size: 0.8rem;
+      color: var(--accent2);
+      margin-bottom: 1.5rem;
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+    }
+
+    .week-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .week-nav span {
+      font-family: var(--font-head);
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    @media (max-width:768px) {
+      .tt-table {
+        font-size: 0.8rem;
+      }
+
+      .tt-table td,
+      .tt-table th {
+        padding: 6px 4px;
+        min-width: 70px;
+      }
+
+      .class-slot .cs-name {
+        font-size: 0.75rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="nav-root"></div>
+  <div id="toast-container"></div>
+  <div class="page-wrapper">
+    <div class="container">
+      <div class="page-header">
+        <div class="breadcrumb"><a href="../index.html">Home</a> › Timetable</div>
+        <h1>🗓️ Class Timetable</h1>
+        <p>Weekly schedule for 6th Semester — Information Technology · Govt. Polytechnic Jammu · Room C2</p>
+      </div>
+
+      <div id="today-banner"></div>
+
+      <div class="legend" id="legend"></div>
+
+      <div style="overflow-x:auto;">
+        <table class="tt-table" id="tt-table">
+          <thead id="tt-head"></thead>
+          <tbody id="tt-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Faculty Info -->
+      <div class="card" style="margin-top:1rem;">
+        <h3 class="section-title" style="font-size:1rem; margin-bottom:1rem;">👩‍🏫 Faculty</h3>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;">
+          <div
+            style="padding:10px; border-radius:8px; background:rgba(59,130,246,0.06); border-left:3px solid #3b82f6;">
+            <div style="font-weight:600; color:var(--white); font-size:0.85rem;">Shalini Goel</div>
+            <div style="font-size:0.75rem; color:var(--muted);">NM </div>
+          </div>
+          <div
+            style="padding:10px; border-radius:8px; background:rgba(249,115,22,0.06); border-left:3px solid #f97316;">
+            <div style="font-weight:600; color:var(--white); font-size:0.85rem;">Sonia Sethi (G/T)</div>
+            <div style="font-size:0.75rem; color:var(--muted);">DIS . WMC</div>
+          </div>
+          <div style="padding:10px; border-radius:8px; background:rgba(34,197,94,0.06); border-left:3px solid #22c55e;">
+            <div style="font-weight:600; color:var(--white); font-size:0.85rem;">Snehjot Kaur</div>
+            <div style="font-size:0.75rem; color:var(--muted);">Open Source Technologies</div>
+          </div>
+          <div style="padding:10px; border-radius:8px; background:rgba(239,68,68,0.06); border-left:3px solid #ef4444;">
+            <div style="font-weight:600; color:var(--white); font-size:0.85rem;">Rani Devi</div>
+            <div style="font-size:0.75rem; color:var(--muted);">Major Project</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem;">
+        <h3 class="section-title" style="font-size:1rem; margin-bottom:1rem;">📋 Quick Summary</h3>
+        <div id="summary-grid" class="stats-row" style="margin-bottom:0;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script>
+    document.getElementById('nav-root').innerHTML = renderNav('Timetable');
+
+    const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+
+    // Time slots matching Govt. Polytechnic Jammu schedule
+    const SLOTS = [
+      { time: '10:00–11:00', type: 'class' },
+      { time: '11:00–12:00', type: 'class' },
+      { time: '12:00–1:00', type: 'class' },
+      { time: '1:00–2:00', type: 'lunch', label: '🍽️ Lunch Break' },
+      { time: '2:00–3:00', type: 'class' },
+      { time: '3:00–4:00', type: 'class' },
+    ];
+
+    // TIMETABLE DATA — Govt. Polytechnic Jammu · 6th Sem IT · Session MJ-2025
+    const TT = {
+      Monday: [{ subjectId: 1, room: 'C2' }, { subjectId: 2, room: 'C2' }, { subjectId: 4, room: 'C2' }, null, { subjectId: 5, room: 'C2' }, { subjectId: 5, room: 'C2' }],
+      Tuesday: [{ subjectId: 2, room: 'C2' }, { subjectId: 1, room: 'C2' }, { subjectId: 4, room: 'C2' }, null, { subjectId: 5, room: 'C2' }, { subjectId: 5, room: 'C2' }],
+      Wednesday: [{ subjectId: 5, room: 'C2' }, { subjectId: 5, room: 'C2' }, { subjectId: 3, room: 'C2' }, null, { subjectId: 5, room: 'C2' }, { subjectId: 5, room: 'C2' }],
+      Thursday: [{ subjectId: 4, room: 'C2' }, { subjectId: 3, room: 'C2' }, { subjectId: 1, room: 'C2' }, null, { subjectId: 5, room: 'C2' }, { subjectId: 5, room: 'C2' }],
+      Friday: [{ subjectId: 3, room: 'C2' }, { subjectId: 7, room: 'Lab' }, { subjectId: 6, room: 'Lab' }, null, { subjectId: 5, room: 'C2' }, { subjectId: 5, room: 'C2' }],
+      Saturday: [{ subjectId: 7, room: 'Lab' }, { subjectId: 6, room: 'Lab' }, { subjectId: 2, room: 'C2' }, null, { subjectId: 5, room: 'C2' }, { subjectId: 5, room: 'C2' }],
+    };
+
+    // Legend
+    const legendEl = document.getElementById('legend');
+    SUBJECTS.forEach(s => {
+      legendEl.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div>${s.emoji} ${s.name}</div>`;
+    });
+
+    // Today banner
+    if (DAYS.includes(today)) {
+      document.getElementById('today-banner').innerHTML = `<div class="today-indicator">📅 Today is <strong>${today}</strong> — Your classes are highlighted</div>`;
+    }
+
+    // Render table header
+    const head = document.getElementById('tt-head');
+    head.innerHTML = `<tr>
+      <th style="min-width:90px;">Time</th>
+      ${DAYS.map(d => `<th class="day-col ${d === today ? 'today' : ''}">${d === today ? '🔵 ' : ''} ${d}</th>`).join('')}
+    </tr>`;
+
+    // Render table body
+    const body = document.getElementById('tt-body');
+    SLOTS.forEach((slot, si) => {
+      if (slot.type === 'break' || slot.type === 'lunch') {
+        body.innerHTML += `<tr>
+          <td class="time-col">${slot.time}</td>
+          <td colspan="${DAYS.length}" style="padding:6px;">
+            <div class="break-slot">${slot.label}</div>
+          </td>
+        </tr>`;
+        return;
+      }
+
+      const tds = DAYS.map(day => {
+        const isToday = day === today;
+        const classData = TT[day] ? TT[day][si] : null;
+        let content = `<div class="free-slot">—</div>`;
+        if (classData) {
+          const s = getSubject(classData.subjectId);
+          content = `<div class="class-slot" style="--subj-color:${s.color}" title="${s.name} · ${classData.room}">
+            <div class="cs-name">${s.emoji} ${s.short}</div>
+            <div class="cs-room">📍 ${classData.room}</div>
+          </div>`;
+        }
+        return `<td class="${isToday ? 'today-col' : ''}">${content}</td>`;
+      }).join('');
+
+      body.innerHTML += `<tr><td class="time-col">${slot.time}</td>${tds}</tr>`;
+    });
+
+    // Summary: classes per subject per week
+    const counts = {};
+    SUBJECTS.forEach(s => counts[s.id] = 0);
+    DAYS.forEach(day => {
+      (TT[day] || []).forEach(c => { if (c) counts[c.subjectId] = (counts[c.subjectId] || 0) + 1; });
+    });
+
+    const sg = document.getElementById('summary-grid');
+    SUBJECTS.forEach(s => {
+      sg.innerHTML += `<div class="stat-card" style="border-left:3px solid ${s.color}">
+        <div class="stat-num" style="color:${s.color}">${counts[s.id] || 0}</div>
+        <div class="stat-label">${s.emoji} ${s.short} / week</div>
+      </div>`;
+    });
+  </script>
+</body>
+
+</html>

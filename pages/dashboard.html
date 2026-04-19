@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — College Hub</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body class="app-page">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-graduation-cap"></i><span>College<b>Hub</b></span></div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item active"><i class="fas fa-home"></i><span>Dashboard</span></a>
+      <a href="notes.html" class="nav-item"><i class="fas fa-file-alt"></i><span>Notes</span></a>
+      <a href="attendance.html" class="nav-item"><i class="fas fa-calendar-check"></i><span>Attendance</span></a>
+      <a href="timetable.html" class="nav-item"><i class="fas fa-clock"></i><span>Timetable</span></a>
+      <a href="announcements.html" class="nav-item"><i class="fas fa-bullhorn"></i><span>Announcements</span></a>
+      <a href="ai-summarizer.html" class="nav-item"><i class="fas fa-robot"></i><span>AI Summarizer</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info"><div class="user-avatar" id="userAvatar">S</div><div><p id="userName">Student</p><small id="userRoll">Roll No.</small></div></div>
+      <button class="logout-btn" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+  </aside>
+  <div class="topbar">
+    <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <span class="topbar-title">Dashboard</span>
+    <button class="logout-btn" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i></button>
+  </div>
+  <main class="main-content">
+    <div class="page-header">
+      <div><h1 id="greetMsg">Good morning! 👋</h1><p>Government Polytechnic College Jammu — 6th Sem CS/IT</p></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card teal"><div class="stat-icon"><i class="fas fa-file-alt"></i></div><div class="stat-info"><h3 id="notesCount">0</h3><p>Notes Uploaded</p></div></div>
+      <div class="stat-card orange"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-info"><h3 id="attendanceAvg">0%</h3><p>Avg Attendance</p></div></div>
+      <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-bullhorn"></i></div><div class="stat-info"><h3 id="announcementsCount">0</h3><p>Announcements</p></div></div>
+      <div class="stat-card purple"><div class="stat-icon"><i class="fas fa-book"></i></div><div class="stat-info"><h3>4</h3><p>Subjects</p></div></div>
+    </div>
+    <section class="section">
+      <h2 class="section-title">📚 Your Subjects</h2>
+      <div class="subjects-grid">
+        <a href="notes.html?subject=network-management" class="subject-card s1"><div class="subject-icon"><i class="fas fa-network-wired"></i></div><h3>Network Management</h3><p>6th Semester</p><span class="subject-tag">CS/IT</span></a>
+        <a href="notes.html?subject=data-information-security" class="subject-card s2"><div class="subject-icon"><i class="fas fa-shield-alt"></i></div><h3>Data & Information Security</h3><p>6th Semester</p><span class="subject-tag">CS/IT</span></a>
+        <a href="notes.html?subject=wireless-media-communication" class="subject-card s3"><div class="subject-icon"><i class="fas fa-wifi"></i></div><h3>Wireless Media Communication</h3><p>6th Semester</p><span class="subject-tag">CS/IT</span></a>
+        <a href="notes.html?subject=open-source-technologies" class="subject-card s4"><div class="subject-icon"><i class="fab fa-linux"></i></div><h3>Open Source Technologies</h3><p>6th Semester</p><span class="subject-tag">CS/IT</span></a>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-title">📢 Recent Announcements</h2>
+      <div id="recentAnnouncements" class="announcements-list"><div class="empty-state"><i class="fas fa-bullhorn"></i><p>No announcements yet</p></div></div>
+    </section>
+    <section class="section">
+      <h2 class="section-title">🕐 Today's Schedule</h2>
+      <div id="todaySchedule" class="schedule-strip"></div>
+    </section>
+  </main>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

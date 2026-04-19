@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="College Hub for Government Polytechnic College Jammu - 6th Semester Resource Hub" />
+  <title>College Hub — GPC Jammu</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Container utility */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Home page hero styling */
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4rem 0 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(59, 130, 246, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(139, 92, 246, 0.06) 0%, transparent 60%);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 99px;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      color: var(--accent2);
+      margin-bottom: 1.5rem;
+      width: fit-content;
+      font-weight: 500;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.03em;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero>div>p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      max-width: 480px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary,
+    .btn-lg.btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+    }
+
+    .btn-primary:hover,
+    .btn-lg.btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-ghost {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--primary);
+      background: rgba(59, 130, 246, 0.05);
+      color: var(--primary);
+    }
+
+    .btn-lg {
+      padding: 14px 28px;
+      font-size: 1rem;
+    }
+
+    .hero-visual {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: all 0.3s;
+      animation: fadeIn 0.6s ease both;
+    }
+
+    .feature-card:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .feature-card:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .feature-card:nth-child(4) {
+      animation-delay: 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .feature-card .fc-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+
+    .feature-card p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .subjects-section {
+      padding: 4rem 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .subjects-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .subj-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-decoration: none;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .subj-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--subj-color);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .subj-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .subj-card .sc-emoji {
+      font-size: 1.6rem;
+    }
+
+    .subj-card h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    .subj-card .sc-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .quick-section {
+      padding: 4rem 0;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .quick-link {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.25s;
+    }
+
+    .quick-link:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      color: var(--white);
+      transform: translateX(4px);
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
+    }
+
+    .quick-link .ql-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(59, 130, 246, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .quick-link:hover .ql-icon {
+      background: rgba(59, 130, 246, 0.18);
+    }
+
+    .quick-link .ql-text h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 2px;
+    }
+
+    .quick-link .ql-text p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 0;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-visual {
+        display: none;
+      }
+
+      .subjects-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .quick-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .subjects-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding: 2rem 0;
+      }
+
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="nav-root"></div>
+  <div id="toast-container"></div>
+  <main class="page-wrapper">
+
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="container">
+        <div class="hero-grid">
+          <div style="animation: fadeIn 0.5s ease both;">
+            <div class="hero-eyebrow">🎓 Government Polytechnic College, Jammu</div>
+            <h1>Your <span class="highlight">College Hub</span> for 6th Semester</h1>
+            <p>All your notes, schedules, announcements, and AI tools in one place. Built by CS/IT students, for CS/IT
+              students.</p>
+            <div class="hero-actions">
+              <a href="pages/notes.html" class="btn btn-primary btn-lg">📚 Browse Notes</a>
+              <a href="pages/ai-summarizer.html" class="btn btn-ghost btn-lg">🤖 AI Summarizer</a>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <div class="feature-card"><span class="fc-icon">📚</span>
+              <h3>Notes Library</h3>
+              <p>Subject-wise notes and study materials</p>
+            </div>
+            <div class="feature-card"><span class="fc-icon">✅</span>
+              <h3>Attendance</h3>
+              <p>Track attendance per subject</p>
+            </div>
+            <div class="feature-card"><span class="fc-icon">🗓️</span>
+              <h3>Timetable</h3>
+              <p>Weekly class schedule</p>
+            </div>
+            <div class="feature-card"><span class="fc-icon">🤖</span>
+              <h3>AI Summarizer</h3>
+              <p>Instant note summaries</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="subjects-section">
+      <div class="container">
+        <h2 class="section-title">📖 6th Semester Subjects</h2>
+        <div class="subjects-strip" id="subjects-strip"></div>
+      </div>
+    </section>
+
+    <section class="quick-section">
+      <div class="container">
+        <h2 class="section-title">⚡ Quick Access</h2>
+        <div class="quick-grid">
+          <a href="pages/notes.html" class="quick-link">
+            <div class="ql-icon">📚</div>
+            <div class="ql-text">
+              <h4>Notes</h4>
+              <p>Upload & download study notes</p>
+            </div>
+          </a>
+          <a href="pages/announcements.html" class="quick-link">
+            <div class="ql-icon">📢</div>
+            <div class="ql-text">
+              <h4>Announcements</h4>
+              <p>Latest college notices</p>
+            </div>
+          </a>
+          <a href="pages/timetable.html" class="quick-link">
+            <div class="ql-icon">🗓️</div>
+            <div class="ql-text">
+              <h4>Timetable</h4>
+              <p>Weekly class schedule</p>
+            </div>
+          </a>
+          <a href="pages/attendance.html" class="quick-link">
+            <div class="ql-icon">✅</div>
+            <div class="ql-text">
+              <h4>Attendance</h4>
+              <p>Track your attendance %</p>
+            </div>
+          </a>
+          <a href="pages/ai-summarizer.html" class="quick-link">
+            <div class="ql-icon">🤖</div>
+            <div class="ql-text">
+              <h4>AI Summarizer</h4>
+              <p>Summarize notes with AI</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">Built with ❤️ by CS/IT Students · Government Polytechnic College, Jammu · 6th Semester
+        Project</div>
+  </main>
+
+  <script src="js/utils.js"></script>
+  <script>
+    document.getElementById('nav-root').innerHTML = renderHomeNav('Home');
+    const strip = document.getElementById('subjects-strip');
+    SUBJECTS.forEach(s => {
+      strip.innerHTML += `
+        <a href="pages/notes.html?subject=${s.id}" class="subj-card" style="--subj-color:${s.color}">
+          <span class="sc-emoji">${s.emoji}</span>
+          <h4>${s.name}</h4>
+          <span class="sc-meta">6th Semester · CS/IT</span>
+        </a>`;
+    });
+  </script>
+</body>
+
+</html>

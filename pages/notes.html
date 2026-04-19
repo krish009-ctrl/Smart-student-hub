@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notes — College Hub</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 1.75rem; }
+    .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+    .filter-tab {
+      padding: 7px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 600;
+      border: 1px solid var(--border); background: var(--card); color: var(--muted);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .filter-tab:hover { color: var(--text); }
+    .filter-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .note-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.25rem; display: flex; flex-direction: column; gap: 12px;
+      transition: all 0.25s; position: relative; overflow: hidden;
+    }
+    .note-card::before { content: ''; position: absolute; top:0; left:0; width:3px; height:100%; background: var(--subj-color, var(--accent)); }
+    .note-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+    .note-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .note-top h3 { font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: var(--white); line-height: 1.3; }
+    .note-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .note-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+    .note-footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .note-info { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .note-actions { display: flex; gap: 8px; }
+    .upload-zone {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 2rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg2);
+    }
+    .upload-zone:hover, .upload-zone.dragging { border-color: var(--accent); background: var(--accent-glow); }
+    .upload-zone .uz-icon { font-size: 2.2rem; margin-bottom: 0.5rem; }
+    .upload-zone h4 { font-family: var(--font-head); color: var(--white); margin-bottom: 4px; }
+    .upload-zone p { font-size: 0.8rem; color: var(--muted); }
+    .search-wrap { position: relative; min-width: 200px; }
+    .search-wrap input { padding-left: 36px !important; }
+    .search-wrap::before { content:'🔍'; position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:.85rem; pointer-events:none; }
+  </style>
+</head>
+<body>
+  <div id="nav-root"></div>
+  <div id="toast-container"></div>
+  <div class="page-wrapper">
+    <div class="container">
+      <div class="page-header">
+        <div class="breadcrumb"><a href="../index.html">Home</a> › Notes</div>
+        <h1>📚 Notes Library</h1>
+        <p>Browse, upload and download study notes for all 6th semester subjects</p>
+      </div>
+      <div class="toolbar">
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-id="0">All</button>
+        </div>
+        <div class="search-wrap">
+          <input type="text" class="form-control" id="search-input" placeholder="Search notes..."/>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">➕ Add Note</button>
+      </div>
+      <div class="card-grid" id="notes-grid"></div>
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <div class="empty-icon">📭</div>
+        <h3>No notes found</h3>
+        <p>Be the first to upload notes for this subject!</p><br/>
+        <button class="btn btn-primary" onclick="openModal()">➕ Upload Notes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="note-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">➕ Add Note</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="form-group"><label>Title *</label><input type="text" class="form-control" id="f-title" placeholder="e.g. Unit 1 – Network Basics"/></div>
+      <div class="form-group"><label>Subject *</label><select class="form-control" id="f-subject"></select></div>
+      <div class="form-group"><label>Description</label><textarea class="form-control" id="f-desc" placeholder="What's covered in these notes?"></textarea></div>
+      <div class="form-group"><label>Unit / Topic</label><input type="text" class="form-control" id="f-unit" placeholder="e.g. Unit 1, Chapter 3"/></div>
+      <div class="form-group"><label>Your Name</label><input type="text" class="form-control" id="f-author" placeholder="e.g. Rahul Sharma"/></div>
+      <div class="form-group">
+        <label>Attach File (PDF, image, doc — max 5MB)</label>
+        <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+          <div class="uz-icon">📎</div>
+          <h4>Click or drag & drop</h4>
+          <p id="fname" style="color:var(--accent2); margin-top:6px;"></p>
+        </div>
+        <input type="file" id="file-input" style="display:none" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt" onchange="handleFile(this)"/>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" style="flex:1" onclick="saveNote()">✅ Save Note</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script>
+    document.getElementById('nav-root').innerHTML = renderNav('Notes');
+    document.getElementById('f-subject').innerHTML = subjectSelector();
+
+    let selFile = null, activeFilter = 0;
+
+    // Filter tabs
+    const tabsEl = document.getElementById('filter-tabs');
+    SUBJECTS.forEach(s => { tabsEl.innerHTML += `<button class="filter-tab" data-id="${s.id}">${s.emoji} ${s.short}</button>`; });
+    tabsEl.querySelectorAll('.filter-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabsEl.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = parseInt(btn.dataset.id);
+        renderNotes();
+      });
+    });
+
+    // URL pre-select
+    const up = new URLSearchParams(window.location.search);
+    if (up.get('subject')) {
+      tabsEl.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      const t = tabsEl.querySelector(`[data-id="${up.get('subject')}"]`);
+      if (t) { t.classList.add('active'); activeFilter = parseInt(up.get('subject')); }
+    }
+
+    function openModal() { document.getElementById('note-modal').classList.add('open'); }
+    function closeModal() { document.getElementById('note-modal').classList.remove('open'); resetForm(); }
+
+    function handleFile(input) {
+      const f = input.files[0];
+      if (!f) return;
+      if (f.size > 5*1024*1024) { showToast('File too large! Max 5MB.','error'); return; }
+      selFile = f;
+      document.getElementById('fname').textContent = '📎 ' + f.name;
+    }
+
+    const dz = document.getElementById('drop-zone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragging'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('dragging'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('dragging');
+      document.getElementById('file-input').files = e.dataTransfer.files;
+      handleFile(document.getElementById('file-input'));
+    });
+
+    function saveNote() {
+      const title = document.getElementById('f-title').value.trim();
+      const subjectId = parseInt(document.getElementById('f-subject').value);
+      const desc = document.getElementById('f-desc').value.trim();
+      const unit = document.getElementById('f-unit').value.trim();
+      const author = document.getElementById('f-author').value.trim() || 'Anonymous';
+      if (!title) { showToast('Please enter a note title!','error'); return; }
+
+      const notes = getStore('ch_notes');
+      const note = { id: Date.now(), title, subjectId, desc, unit, author, date: new Date().toISOString(), fileName: selFile ? selFile.name : null };
+
+      if (selFile && selFile.size < 2*1024*1024) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          note.fileData = e.target.result;
+          notes.unshift(note); setStore('ch_notes', notes);
+          showToast('Note saved! ✅','success'); closeModal(); renderNotes();
+        };
+        reader.readAsDataURL(selFile);
+      } else {
+        notes.unshift(note); setStore('ch_notes', notes);
+        showToast('Note saved!'+(selFile?' (File too large to store, name saved only)':''),'success');
+        closeModal(); renderNotes();
+      }
+    }
+
+    function deleteNote(id) {
+      if (!confirm('Delete this note?')) return;
+      setStore('ch_notes', getStore('ch_notes').filter(n => n.id !== id));
+      showToast('Note deleted.','info'); renderNotes();
+    }
+
+    function resetForm() {
+      ['f-title','f-desc','f-unit','f-author'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('fname').textContent = '';
+      document.getElementById('file-input').value = '';
+      selFile = null;
+    }
+
+    function renderNotes() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      let notes = getStore('ch_notes');
+      if (activeFilter !== 0) notes = notes.filter(n => n.subjectId === activeFilter);
+      if (search) notes = notes.filter(n => (n.title+' '+n.desc+' '+n.unit).toLowerCase().includes(search));
+
+      const grid = document.getElementById('notes-grid');
+      const empty = document.getElementById('empty-state');
+      if (!notes.length) { grid.innerHTML=''; empty.style.display='block'; return; }
+      empty.style.display = 'none';
+
+      grid.innerHTML = notes.map(n => {
+        const s = getSubject(n.subjectId);
+        return `<div class="note-card" style="--subj-color:${s.color}">
+          <div class="note-top">
+            <h3>${n.title}</h3>
+            <div class="note-meta">
+              <span class="subj-tag">${s.emoji} ${s.short}</span>
+              ${n.unit ? `<span class="badge badge-blue">${n.unit}</span>` : ''}
+            </div>
+          </div>
+          ${n.desc ? `<p class="note-desc">${n.desc}</p>` : ''}
+          <div class="note-footer">
+            <div class="note-info">
+              <span>👤 ${n.author}</span>
+              <span>🕐 ${timeAgo(n.date)}</span>
+              ${n.fileName ? `<span>📎 ${n.fileName}</span>` : ''}
+            </div>
+            <div class="note-actions">
+              ${n.fileData ? `<a href="${n.fileData}" download="${n.fileName}" class="btn btn-outline btn-sm">⬇ Download</a>` : ''}
+              <button class="btn btn-ghost btn-sm" onclick="deleteNote(${n.id})">🗑️</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    document.getElementById('search-input').addEventListener('input', renderNotes);
+
+    // Seed demo data
+    if (!getStore('ch_notes').length) {
+      setStore('ch_notes', [
+        { id:1, title:'Unit 1 – Introduction to Network Management', subjectId:1, desc:'FCAPS model, SNMP protocol basics, network topologies.', unit:'Unit 1', author:'Priya Sharma', date:new Date(Date.now()-86400000).toISOString() },
+        { id:2, title:'Cryptography – Symmetric & Asymmetric Encryption', subjectId:2, desc:'DES, AES, RSA with examples and key generation.', unit:'Unit 2', author:'Rohit Kumar', date:new Date(Date.now()-172800000).toISOString() },
+        { id:3, title:'Wireless Standards – 802.11 a/b/g/n/ac', subjectId:3, desc:'Frequency bands, data rates, and use cases for each standard.', unit:'Unit 1', author:'Aisha Malik', date:new Date(Date.now()-259200000).toISOString() },
+        { id:4, title:'Linux Commands Cheat Sheet', subjectId:4, desc:'Essential commands for file management, networking and processes.', unit:'Unit 3', author:'Vikram Singh', date:new Date(Date.now()-345600000).toISOString() },
+      ]);
+    }
+    renderNotes();
+  </script>
+</body>
+</html>

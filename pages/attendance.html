@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attendance — College Hub</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .att-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.5rem; transition: all 0.25s; position: relative; overflow: hidden;
+    }
+    .att-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background: var(--subj-color); }
+    .att-card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+
+    .att-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+    .att-card-title { font-family:var(--font-head); font-size:1rem; font-weight:700; color:var(--white); }
+    .att-percent {
+      font-family:var(--font-head); font-size:2rem; font-weight:800; line-height:1;
+    }
+    .att-percent.safe { color: var(--green); }
+    .att-percent.warning { color: var(--orange); }
+    .att-percent.danger { color: var(--red); }
+
+    .att-counts { display:flex; gap:16px; margin:12px 0; font-size:0.85rem; }
+    .att-counts span { display:flex; align-items:center; gap:5px; color:var(--muted); }
+
+    .att-actions { display:flex; gap:8px; margin-top:12px; }
+
+    .att-warning-bar {
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
+      border-radius:8px; padding:10px 14px; margin-top:10px;
+      font-size:0.82rem; color: var(--red); display:flex; align-items:center; gap:8px;
+    }
+    .att-safe-bar {
+      background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2);
+      border-radius:8px; padding:8px 14px; margin-top:10px;
+      font-size:0.82rem; color:var(--green); display:flex; align-items:center; gap:8px;
+    }
+
+    .overall-card {
+      background: linear-gradient(135deg, var(--card2), var(--card));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.5rem; margin-bottom: 2rem;
+      display:flex; align-items:center; gap:2rem; flex-wrap:wrap;
+    }
+    .overall-num { font-family:var(--font-head); font-size:3.5rem; font-weight:800; color:var(--white); line-height:1; }
+    .overall-label { color:var(--muted); font-size:0.9rem; margin-top:4px; }
+
+    .log-section { margin-top: 2rem; }
+    .log-item {
+      display:flex; align-items:center; gap:12px; padding:10px 0;
+      border-bottom: 1px solid var(--border); font-size:0.85rem;
+    }
+    .log-item:last-child { border-bottom:none; }
+    .log-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  </style>
+</head>
+<body>
+  <div id="nav-root"></div>
+  <div id="toast-container"></div>
+  <div class="page-wrapper">
+    <div class="container">
+      <div class="page-header">
+        <div class="breadcrumb"><a href="../index.html">Home</a> › Attendance</div>
+        <h1>✅ Attendance Tracker</h1>
+        <p>Track your attendance per subject. You need ≥75% to be eligible for exams.</p>
+      </div>
+
+      <!-- Overall -->
+      <div class="overall-card">
+        <div>
+          <div class="overall-num" id="overall-pct">—</div>
+          <div class="overall-label">Overall Attendance</div>
+        </div>
+        <div style="flex:1; max-width:360px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--muted); margin-bottom:6px;">
+            <span>Total Progress</span>
+            <span id="overall-counts"></span>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar" id="overall-bar" style="background:var(--green);"></div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="openMarkModal()">📋 Mark Today's Attendance</button>
+      </div>
+
+      <!-- Subject cards -->
+      <h2 class="section-title"><span class="icon">📚</span> Subject-wise Attendance</h2>
+      <div class="card-grid" id="att-grid"></div>
+
+      <!-- Log -->
+      <div class="log-section">
+        <h2 class="section-title" style="margin-top:2rem;"><span class="icon">📅</span> Recent Log <button class="btn btn-ghost btn-sm" onclick="clearLog()" style="margin-left:auto; font-size:0.75rem;">Clear Log</button></h2>
+        <div class="card">
+          <div id="att-log"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mark Modal -->
+  <div class="modal-overlay" id="mark-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">📋 Mark Attendance</span>
+        <button class="modal-close" onclick="closeMarkModal()">✕</button>
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" class="form-control" id="m-date"/>
+      </div>
+      <div id="mark-subjects"></div>
+      <div style="display:flex;gap:10px;margin-top:1rem;">
+        <button class="btn btn-primary" style="flex:1" onclick="saveAttendance()">✅ Save Attendance</button>
+        <button class="btn btn-ghost" onclick="closeMarkModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script>
+    document.getElementById('nav-root').innerHTML = renderNav('Attendance');
+
+    // Set today's date as default
+    document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
+
+    function openMarkModal() {
+      // Build subject toggles
+      const ms = document.getElementById('mark-subjects');
+      ms.innerHTML = SUBJECTS.map(s => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
+          <span style="font-weight:500; color:var(--text);">${s.emoji} ${s.name}</span>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-sm" id="p-${s.id}" onclick="setMark(${s.id},'present')" style="background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3);">✅ Present</button>
+            <button class="btn btn-sm" id="a-${s.id}" onclick="setMark(${s.id},'absent')" style="background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.3);">❌ Absent</button>
+            <button class="btn btn-sm" id="h-${s.id}" onclick="setMark(${s.id},'holiday')" style="background:rgba(249,115,22,0.1);color:var(--orange);border:1px solid rgba(249,115,22,0.3);">🏖 Holiday</button>
+          </div>
+        </div>`).join('');
+      window._marks = {};
+      document.getElementById('mark-modal').classList.add('open');
+    }
+
+    function setMark(sid, status) {
+      window._marks = window._marks || {};
+      window._marks[sid] = status;
+      ['p','a','h'].forEach(k => {
+        const el = document.getElementById(`${k}-${sid}`);
+        if (el) el.style.opacity = '0.4';
+      });
+      const map = { present:'p', absent:'a', holiday:'h' };
+      const el = document.getElementById(`${map[status]}-${sid}`);
+      if (el) el.style.opacity = '1';
+    }
+
+    function closeMarkModal() { document.getElementById('mark-modal').classList.remove('open'); }
+
+    function saveAttendance() {
+      const date = document.getElementById('m-date').value;
+      if (!date) { showToast('Please select a date!','error'); return; }
+      const marks = window._marks || {};
+      if (!Object.keys(marks).length) { showToast('Please mark at least one subject!','error'); return; }
+
+      const records = getStore('ch_attendance');
+      // Remove existing records for same date
+      const filtered = records.filter(r => r.date !== date);
+
+      Object.entries(marks).forEach(([subjectId, status]) => {
+        filtered.push({ id: Date.now()+Math.random(), subjectId: parseInt(subjectId), status, date });
+      });
+
+      setStore('ch_attendance', filtered);
+      showToast('Attendance saved! ✅','success');
+      closeMarkModal();
+      renderAttendance();
+    }
+
+    function clearLog() {
+      if (!confirm('Clear all attendance records? This cannot be undone.')) return;
+      setStore('ch_attendance', []);
+      showToast('Log cleared.','info');
+      renderAttendance();
+    }
+
+    function getStats(subjectId) {
+      const records = getStore('ch_attendance').filter(r => r.subjectId === subjectId && r.status !== 'holiday');
+      const present = records.filter(r => r.status === 'present').length;
+      const total = records.length;
+      const pct = total > 0 ? Math.round((present/total)*100) : 0;
+      return { present, total, absent: total - present, pct };
+    }
+
+    function neededClasses(present, total) {
+      // How many more classes to attend to reach 75%
+      const needed = Math.ceil((0.75 * total - present) / 0.25);
+      return needed > 0 ? needed : 0;
+    }
+
+    function canMiss(present, total) {
+      // How many more classes can be missed while staying above 75%
+      const max = Math.floor(total / 4);
+      const absents = total - present;
+      return Math.max(0, max - absents);
+    }
+
+    function renderAttendance() {
+      const grid = document.getElementById('att-grid');
+      let totalPresent = 0, totalClasses = 0;
+
+      grid.innerHTML = SUBJECTS.map(s => {
+        const st = getStats(s.id);
+        totalPresent += st.present; totalClasses += st.total;
+        const cls = st.pct >= 75 ? 'safe' : st.pct >= 60 ? 'warning' : 'danger';
+        const barColor = st.pct >= 75 ? 'var(--green)' : st.pct >= 60 ? 'var(--orange)' : 'var(--red)';
+        const canMissCount = canMiss(st.present, st.total);
+        const needCount = st.pct < 75 ? neededClasses(st.present, st.total) : 0;
+
+        return `<div class="att-card" style="--subj-color:${s.color}">
+          <div class="att-card-top">
+            <div>
+              <div class="att-card-title">${s.emoji} ${s.name}</div>
+              <div class="att-counts">
+                <span>✅ ${st.present} present</span>
+                <span>❌ ${st.absent} absent</span>
+                <span>📅 ${st.total} total</span>
+              </div>
+            </div>
+            <div class="att-percent ${cls}">${st.pct}%</div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar" style="background:${barColor}; width:${st.pct}%;"></div>
+          </div>
+          ${st.pct < 75 && st.total > 0 ? `<div class="att-warning-bar">⚠️ Low attendance! Attend ${needCount} more class${needCount!==1?'es':''} to reach 75%.</div>` : ''}
+          ${st.pct >= 75 && st.total > 0 ? `<div class="att-safe-bar">✅ Safe! You can miss ${canMissCount} more class${canMissCount!==1?'es':''} and stay above 75%.</div>` : ''}
+          ${st.total === 0 ? `<div class="att-safe-bar" style="background:rgba(139,92,246,0.08); border-color:rgba(139,92,246,0.2); color:#a78bfa;">📋 No records yet. Start marking attendance!</div>` : ''}
+          <div class="att-actions">
+            <button class="btn btn-success btn-sm" onclick="quickMark(${s.id},'present')">✅ Present</button>
+            <button class="btn btn-danger btn-sm" onclick="quickMark(${s.id},'absent')">❌ Absent</button>
+          </div>
+        </div>`;
+      }).join('');
+
+      // Overall
+      const overallPct = totalClasses > 0 ? Math.round((totalPresent/totalClasses)*100) : 0;
+      document.getElementById('overall-pct').textContent = overallPct + '%';
+      document.getElementById('overall-pct').className = 'overall-num ' + (overallPct >= 75 ? 'safe' : overallPct >= 60 ? 'warning' : 'danger');
+      document.getElementById('overall-counts').textContent = `${totalPresent}/${totalClasses} classes`;
+      document.getElementById('overall-bar').style.width = overallPct + '%';
+      document.getElementById('overall-bar').style.background = overallPct >= 75 ? 'var(--green)' : overallPct >= 60 ? 'var(--orange)' : 'var(--red)';
+
+      // Log
+      const records = [...getStore('ch_attendance')].sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0,20);
+      const statusEmoji = { present:'✅', absent:'❌', holiday:'🏖️' };
+      const statusColor = { present:'var(--green)', absent:'var(--red)', holiday:'var(--orange)' };
+      const log = document.getElementById('att-log');
+      if (!records.length) { log.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--muted);">No records yet. Start marking attendance!</div>`; return; }
+      log.innerHTML = records.map(r => {
+        const s = getSubject(r.subjectId);
+        return `<div class="log-item">
+          <div class="log-dot" style="background:${statusColor[r.status]}"></div>
+          <span style="color:var(--muted); min-width:90px;">${formatDate(r.date)}</span>
+          <span style="flex:1;">${s.emoji} ${s.name}</span>
+          <span style="color:${statusColor[r.status]}; font-weight:600;">${statusEmoji[r.status]} ${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span>
+        </div>`;
+      }).join('');
+    }
+
+    function quickMark(subjectId, status) {
+      const date = new Date().toISOString().split('T')[0];
+      const records = getStore('ch_attendance');
+      // Remove existing entry for today + this subject
+      const filtered = records.filter(r => !(r.subjectId === subjectId && r.date === date));
+      filtered.push({ id: Date.now(), subjectId, status, date });
+      setStore('ch_attendance', filtered);
+      const s = getSubject(subjectId);
+      showToast(`${s.emoji} ${s.short}: ${status === 'present' ? '✅ Marked Present' : '❌ Marked Absent'}`, status === 'present' ? 'success' : 'info');
+      renderAttendance();
+    }
+
+    renderAttendance();
+  </script>
+</body>
+</html>

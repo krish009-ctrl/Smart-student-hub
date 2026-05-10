@@ -1,52 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Summarizer — College Hub</title>
-  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/style.css" />
   <style>
-    .ai-layout { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
-    .ai-panel { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; display:flex; flex-direction:column; gap:12px; }
-    .ai-panel h3 { font-family:var(--font-head); font-size:1rem; font-weight:700; color:var(--white); display:flex; align-items:center; gap:8px; }
+    .ai-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .ai-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ai-panel h3 {
+      font-family: var(--font-head);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
     .ai-textarea {
-      width:100%; min-height:320px; padding:14px; resize:vertical;
-      background:var(--bg2); border:1px solid var(--border); border-radius:10px;
-      color:var(--text); font-family:var(--font-body); font-size:0.88rem; line-height:1.7;
-      outline:none; transition:border-color 0.2s; flex:1;
+      width: 100%;
+      min-height: 320px;
+      padding: 14px;
+      resize: vertical;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      line-height: 1.7;
+      outline: none;
+      transition: border-color 0.2s;
+      flex: 1;
     }
-    .ai-textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(59,130,246,0.1); }
+
+    .ai-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
 
     .output-box {
-      background:var(--bg2); border:1px solid var(--border); border-radius:10px;
-      padding:14px; min-height:320px; font-size:0.88rem; line-height:1.7;
-      color:var(--text); overflow-y:auto; white-space:pre-wrap; flex:1;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      min-height: 320px;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--text);
+      overflow-y: auto;
+      white-space: pre-wrap;
+      flex: 1;
     }
-    .output-box.loading { display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; color:var(--muted); }
 
-    .mode-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+    .output-box.loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      color: var(--muted);
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
     .mode-tab {
-      padding:6px 14px; border-radius:99px; font-size:0.8rem; font-weight:600;
-      border:1px solid var(--border); background:var(--bg2); color:var(--muted);
-      cursor:pointer; transition:all 0.2s;
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    .mode-tab.active { background:var(--accent); color:white; border-color:var(--accent); }
 
-    .spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
+    .mode-tab.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
 
-    .char-count { font-size:0.75rem; color:var(--muted); text-align:right; }
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
 
-    .tips-card { background:rgba(59,130,246,0.07); border:1px solid rgba(59,130,246,0.2); border-radius:var(--radius); padding:1.25rem; margin-bottom:1.5rem; }
-    .tips-card h4 { font-family:var(--font-head); color:var(--accent2); margin-bottom:8px; font-size:0.9rem; }
-    .tips-card ul { list-style:none; display:flex; flex-direction:column; gap:4px; }
-    .tips-card ul li { font-size:0.82rem; color:var(--muted); padding-left:1.2rem; position:relative; }
-    .tips-card ul li::before { content:'→'; position:absolute; left:0; color:var(--accent); }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
-    @media (max-width:768px) { .ai-layout { grid-template-columns:1fr; } }
+    .char-count {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .tips-card {
+      background: rgba(59, 130, 246, 0.07);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tips-card h4 {
+      font-family: var(--font-head);
+      color: var(--accent2);
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .tips-card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tips-card ul li {
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding-left: 1.2rem;
+      position: relative;
+    }
+
+    .tips-card ul li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    @media (max-width:768px) {
+      .ai-layout {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
+
 <body>
   <div id="nav-root"></div>
   <div id="toast-container"></div>
@@ -61,15 +181,18 @@
       <!-- API Key setup -->
       <div class="tips-card" id="api-key-card">
         <h4>🔑 Setup (one-time, takes 30 seconds)</h4>
-        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:10px;">This uses <strong>Google Gemini AI</strong> (completely free). Just grab an API key:</p>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:10px;">This uses <strong>Google Gemini AI</strong>
+          (completely free). Just grab an API key:</p>
         <ol style="font-size:0.82rem;color:var(--muted);padding-left:1.2rem;margin-bottom:12px;">
-          <li>Go to <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent2);">aistudio.google.com/apikey</a></li>
+          <li>Go to <a href="https://aistudio.google.com/apikey" target="_blank"
+              style="color:var(--accent2);">aistudio.google.com/apikey</a></li>
           <li>Sign in with your Google account</li>
           <li>Click <strong>"Create API Key"</strong> and copy it</li>
           <li>Paste it below and you're done!</li>
         </ol>
         <div style="display:flex;gap:8px;">
-          <input type="password" id="api-key-input" class="form-control" placeholder="Paste your Gemini API key here..." style="flex:1;font-size:0.85rem;" />
+          <input type="password" id="api-key-input" class="form-control" placeholder="Paste your Gemini API key here..."
+            style="flex:1;font-size:0.85rem;" />
           <button class="btn btn-primary" onclick="saveApiKey()" style="white-space:nowrap;">💾 Save Key</button>
         </div>
         <div id="key-status" style="font-size:0.78rem;margin-top:8px;"></div>
@@ -103,7 +226,8 @@
       <div class="ai-layout">
         <div class="ai-panel">
           <h3>📄 Your Notes</h3>
-          <textarea class="ai-textarea" id="notes-input" placeholder="Paste your notes here...
+          <textarea class="ai-textarea" id="notes-input"
+            placeholder="Paste your notes here...
 
 Example:
 Network Management involves monitoring, administering and maintaining computer networks. The FCAPS model covers Fault, Configuration, Accounting, Performance and Security management.
@@ -130,7 +254,8 @@ SNMP (Simple Network Management Protocol) is the most widely used protocol for n
 
       <!-- History -->
       <div style="margin-top:2rem;">
-        <h2 class="section-title"><span class="icon">🕐</span> Recent Summaries <button class="btn btn-ghost btn-sm" onclick="clearHistory()" style="margin-left:auto;font-size:0.75rem;">Clear History</button></h2>
+        <h2 class="section-title"><span class="icon">🕐</span> Recent Summaries <button class="btn btn-ghost btn-sm"
+            onclick="clearHistory()" style="margin-left:auto;font-size:0.75rem;">Clear History</button></h2>
         <div id="history-list" class="card-grid"></div>
       </div>
     </div>
@@ -174,7 +299,7 @@ SNMP (Simple Network Management Protocol) is the most widely used protocol for n
       });
     });
 
-    document.getElementById('notes-input').addEventListener('input', function() {
+    document.getElementById('notes-input').addEventListener('input', function () {
       document.getElementById('char-count').textContent = this.value.length + ' characters';
     });
 
@@ -185,15 +310,15 @@ SNMP (Simple Network Management Protocol) is the most widely used protocol for n
 
     function copyOutput() {
       const text = document.getElementById('output-box').textContent;
-      if (!text || text.includes('Your AI-generated')) { showToast('Nothing to copy!','error'); return; }
-      navigator.clipboard.writeText(text).then(() => showToast('Copied! 📋','success'));
+      if (!text || text.includes('Your AI-generated')) { showToast('Nothing to copy!', 'error'); return; }
+      navigator.clipboard.writeText(text).then(() => showToast('Copied! 📋', 'success'));
     }
 
     function saveToNotes() {
       const text = document.getElementById('output-box').textContent;
-      if (!text || text.includes('Your AI-generated')) { showToast('Nothing to save!','error'); return; }
+      if (!text || text.includes('Your AI-generated')) { showToast('Nothing to save!', 'error'); return; }
       const subjectId = parseInt(document.getElementById('subject-select').value) || 1;
-      const modeLabels = { summary:'Summary', keypoints:'Key Points', qa:'Q&A', explain:'Simple Explanation' };
+      const modeLabels = { summary: 'Summary', keypoints: 'Key Points', qa: 'Q&A', explain: 'Simple Explanation' };
       const notes = getStore('ch_notes');
       notes.unshift({
         id: Date.now(),
@@ -206,7 +331,7 @@ SNMP (Simple Network Management Protocol) is the most widely used protocol for n
         fileName: null,
       });
       setStore('ch_notes', notes);
-      showToast('Saved to Notes! 💾','success');
+      showToast('Saved to Notes! 💾', 'success');
     }
 
     // prompts for each mode
@@ -342,8 +467,8 @@ ${text}`,
       const list = document.getElementById('history-list');
       if (!history.length) { list.innerHTML = `<div style="color:var(--muted);font-size:0.85rem;padding:1rem 0;">No history yet. Run your first summary!</div>`; return; }
 
-      const modeEmoji = { summary:'📝', keypoints:'🔑', qa:'❓', explain:'📖' };
-      const modeLabel = { summary:'Summary', keypoints:'Key Points', qa:'Q&A', explain:'Explanation' };
+      const modeEmoji = { summary: '📝', keypoints: '🔑', qa: '❓', explain: '📖' };
+      const modeLabel = { summary: 'Summary', keypoints: 'Key Points', qa: 'Q&A', explain: 'Explanation' };
 
       list.innerHTML = history.map(h => {
         const s = h.subjectId ? getSubject(h.subjectId) : null;
@@ -365,10 +490,11 @@ ${text}`,
       if (!h) return;
       document.getElementById('output-box').className = 'output-box';
       document.getElementById('output-box').textContent = h.output;
-      showToast('Loaded from history!','info');
+      showToast('Loaded from history!', 'info');
     }
 
     renderHistory();
   </script>
 </body>
+
 </html>

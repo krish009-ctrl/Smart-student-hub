@@ -1,0 +1,203 @@
+
+    /* Notes page specific styles */
+    .notes-toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .search-wrap {
+      position: relative;
+      min-width: 220px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .search-wrap input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    }
+
+    .search-wrap i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    /* Upload modal styles */
+    .upload-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+    }
+
+    .upload-modal .modal-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 90%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 28px;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .upload-modal .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .upload-modal .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .upload-modal .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+
+    .upload-modal .modal-close:hover {
+      color: var(--red);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .file-upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg2);
+      margin-bottom: 16px;
+    }
+
+    .file-upload-zone:hover,
+    .file-upload-zone.dragging {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .file-upload-zone i {
+      font-size: 2rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .file-upload-zone p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .file-upload-zone .file-name {
+      color: var(--accent2);
+      margin-top: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .progress-section {
+      margin: 12px 0;
+    }
+
+    .progress-track {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-track .fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--primary), var(--s2));
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    .progress-text {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 6px;
+      text-align: center;
+    }
+  

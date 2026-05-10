@@ -1,4 +1,4 @@
-// ai summarizer - uses google gemini api (free) to summarize/explain/generate questions
+﻿// ai summarizer - uses google gemini api (free) to summarize/explain/generate questions
 
 document.addEventListener('DOMContentLoaded', () => {
   const textarea = document.getElementById('inputText');

@@ -1,4 +1,4 @@
-// attendance tracking
+﻿// attendance tracking (Supabase)
 
 const SUBJECTS = {
   'network-management': 'Network Management',
@@ -12,28 +12,50 @@ let currentUID = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   // default to todays date
-  document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      currentUID = user.uid;
+  const dateInput = document.getElementById('attDate');
+  if (dateInput) {
+    dateInput.value = new Date().toISOString().split('T')[0];
+  }
+  
+  window.supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      currentUID = session.user.id;
+      loadAttendance();
+    } else {
+      currentUID = null;
+    }
+  });
+
+  window.supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      currentUID = session.user.id;
       loadAttendance();
     }
   });
 });
 
 async function loadAttendance() {
-  const snap = await db.collection('attendance')
-    .where('uid', '==', currentUID)
-    .orderBy('date', 'desc')
-    .get();
-  allAttRecords = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  renderAttCards();
-  renderAttLog(allAttRecords);
+  if (!currentUID) return;
+  try {
+    const { data, error } = await window.supabaseClient
+      .from('attendance')
+      .select('*')
+      .eq('user_id', currentUID)
+      .order('date', { ascending: false });
+      
+    if (error) throw error;
+    allAttRecords = data || [];
+    renderAttCards();
+    renderAttLog(allAttRecords);
+  } catch (e) {
+    console.log('Error loading attendance:', e);
+  }
 }
 
 // builds the subject-wise summary cards
 function renderAttCards() {
   const grid = document.getElementById('attendanceGrid');
+  if (!grid) return;
   grid.innerHTML = '';
 
   Object.entries(SUBJECTS).forEach(([key, name]) => {
@@ -75,6 +97,7 @@ function calcNeeded(present, total) {
 
 function renderAttLog(records) {
   const tbody = document.getElementById('attLogBody');
+  if (!tbody) return;
   if (records.length === 0) {
     tbody.innerHTML = '<tr><td colspan="4" class="empty-row">No attendance records yet. Start marking!</td></tr>';
     return;
@@ -93,7 +116,7 @@ function renderAttLog(records) {
 
 function filterAttLog(subject) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  if (event && event.target) event.target.classList.add('active');
   const filtered = subject === 'all' ? allAttRecords : allAttRecords.filter(r => r.subject === subject);
   renderAttLog(filtered);
 }
@@ -119,11 +142,14 @@ async function markAttendance() {
   }
 
   try {
-    await db.collection('attendance').add({
-      uid: currentUID,
-      subject, date, status,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    const { error } = await window.supabaseClient.from('attendance').insert([{
+      user_id: currentUID,
+      subject, 
+      date, 
+      status
+    }]);
+    if (error) throw error;
+    
     msgEl.textContent = 'Attendance saved! ✅';
     msgEl.className = 'auth-msg success';
     await loadAttendance();
@@ -136,6 +162,6 @@ async function markAttendance() {
 
 async function deleteAttRecord(id) {
   if (!confirm('Delete this attendance record?')) return;
-  await db.collection('attendance').doc(id).delete();
+  await window.supabaseClient.from('attendance').delete().eq('id', id);
   await loadAttendance();
 }

@@ -1,4 +1,4 @@
-// timetable.js (used by the old firebase-based timetable page, if still linked anywhere)
+﻿// timetable.js (Supabase)
 
 const SUBJECTS = {
   'network-management': 'Network Management',
@@ -31,13 +31,21 @@ function setTodayBanner() {
 }
 
 async function loadTimetable() {
-  const snap = await db.collection('timetable').orderBy('startTime').get();
-  timetableEntries = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  renderTimetable();
+  try {
+    const { data } = await window.supabaseClient
+      .from('timetable')
+      .select('*')
+      .order('start_time', { ascending: true });
+    timetableEntries = data || [];
+    renderTimetable();
+  } catch (e) {
+    console.log('Error loading timetable:', e);
+  }
 }
 
 function renderTimetable() {
   const tbody = document.getElementById('timetableBody');
+  if (!tbody) return;
   tbody.innerHTML = '';
 
   TIME_SLOTS.forEach((slot, i) => {
@@ -47,7 +55,9 @@ function renderTimetable() {
 
     DAYS.forEach(day => {
       const entry = timetableEntries.find(e =>
-        e.day === day && e.startTime >= slot && e.startTime < nextSlot
+        e.day === day && 
+        (e.start_time || e.startTime) >= slot && 
+        (e.start_time || e.startTime) < nextSlot
       );
       if (entry) {
         const cls = SUBJECT_CLASS[entry.subject] || 's1';
@@ -88,12 +98,17 @@ async function addTimetableEntry() {
   }
 
   try {
-    await db.collection('timetable').add({
-      subject, day, startTime, endTime,
+    const { error } = await window.supabaseClient.from('timetable').insert([{
+      subject, 
+      day, 
+      start_time: startTime, 
+      end_time: endTime,
       teacher: teacher || null,
-      room: room || null,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+      room: room || null
+    }]);
+
+    if (error) throw error;
+
     msgEl.textContent = 'Class added! ✅';
     msgEl.className = 'auth-msg success';
     await loadTimetable();
@@ -110,6 +125,6 @@ async function addTimetableEntry() {
 
 async function deleteTTEntry(id) {
   if (!confirm('Remove this class from timetable?')) return;
-  await db.collection('timetable').doc(id).delete();
+  await window.supabaseClient.from('timetable').delete().eq('id', id);
   loadTimetable();
 }

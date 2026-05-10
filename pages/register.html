@@ -4,8 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Student Login — Smart Student Portal for Government Polytechnic College Jammu" />
-  <title>Login — Smart Student Portal</title>
+  <meta name="description"
+    content="Student Registration — Smart Student Portal for Government Polytechnic College Jammu" />
+  <title>Register — Smart Student Portal</title>
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,72 +32,30 @@
           <h1>Smart<span>Portal</span></h1>
         </div>
         <p class="tagline">
-          Your one-stop student portal for GPC Jammu.<br>
-          Notes, timetable, attendance, and AI tools — all in one place.
+          Create your student account to access all features.<br>
+          It only takes a minute to get started!
         </p>
         <ul class="feature-list">
           <li>
-            <div class="feat-icon">📚</div><span>Upload & access notes anytime</span>
+            <div class="feat-icon">🔐</div><span>Secure account with Firebase</span>
           </li>
           <li>
-            <div class="feat-icon">🗓️</div><span>View your weekly timetable</span>
+            <div class="feat-icon">📚</div><span>Access notes, timetable & more</span>
           </li>
           <li>
-            <div class="feat-icon">✅</div><span>Track attendance per subject</span>
-          </li>
-          <li>
-            <div class="feat-icon">🤖</div><span>Summarize notes instantly with AI</span>
+            <div class="feat-icon">🚀</div><span>Get started in under a minute</span>
           </li>
         </ul>
       </div>
 
-      <!-- Right: auth card -->
+      <!-- Right: registration form -->
       <div class="login-right">
         <div class="auth-card">
 
-          <!-- Tab switcher — Login is active by default -->
-          <div class="tab-switcher">
-            <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
-            <button class="tab-btn" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
-          </div>
-
-          <!-- ========== LOGIN FORM ========== -->
-          <div id="loginForm" class="auth-form">
-            <h2>Welcome back 👋</h2>
-            <p class="sub">Sign in to continue to your dashboard</p>
-
-            <div class="form-field">
-              <label for="loginEmail">Email Address</label>
-              <div class="input-wrapper">
-                <input type="email" id="loginEmail" placeholder="your.email@gpcjammu.edu" autocomplete="email" />
-                <span class="input-icon">✉️</span>
-              </div>
-            </div>
-
-            <div class="form-field">
-              <label for="loginPassword">Password</label>
-              <div class="input-wrapper">
-                <input type="password" id="loginPassword" placeholder="Enter your password"
-                  autocomplete="current-password" />
-                <span class="input-icon">🔒</span>
-                <button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)"
-                  aria-label="Toggle password visibility">👁️</button>
-              </div>
-            </div>
-
-            <button class="btn-login" id="loginBtn" onclick="loginUser()">
-              Sign In →
-            </button>
-
-            <p class="switch-text">
-              Don't have an account? <a href="register.html">Create one</a>
-            </p>
-          </div>
-
-          <!-- ========== SIGNUP FORM ========== -->
-          <div id="signupForm" class="auth-form hidden">
+          <!-- ========== REGISTRATION FORM ========== -->
+          <div id="signupForm" class="auth-form">
             <h2>Create Account ✨</h2>
-            <p class="sub">Join Smart Student Portal to get started</p>
+            <p class="sub">Join Smart Student Portal — GPC Jammu</p>
 
             <div class="form-field">
               <label for="signupName">Full Name</label>
@@ -133,16 +92,16 @@
               </div>
             </div>
 
-            <button class="btn-login" id="signupBtn" onclick="signupUser()">
+            <button class="btn-register" id="signupBtn" onclick="signupUser()">
               Create Account →
             </button>
 
             <p class="switch-text">
-              Already have an account? <a href="login.html">Sign in</a>
+              Already have an account? <a href="login.html">Sign in instead</a>
             </p>
           </div>
 
-          <!-- Auth messages (success/error) appear here -->
+          <!-- Auth messages -->
           <div id="authMsg" class="auth-msg"></div>
 
         </div>
@@ -158,7 +117,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/auth.js"></script>
-
   
 </body>
 

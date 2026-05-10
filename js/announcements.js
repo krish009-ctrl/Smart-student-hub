@@ -1,4 +1,4 @@
-// announcements - post/view/delete/filter college announcements
+﻿// announcements - post/view/delete/filter college announcements (Supabase)
 
 const CATEGORY_ICONS = {
   exam: 'fas fa-pencil-alt',
@@ -13,19 +13,27 @@ document.addEventListener('DOMContentLoaded', loadAnnouncements);
 
 async function loadAnnouncements() {
   const list = document.getElementById('annList');
+  if (!list) return;
   list.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
 
   try {
-    const snap = await db.collection('announcements').orderBy('createdAt', 'desc').get();
-    allAnnouncements = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const { data, error } = await window.supabaseClient
+      .from('announcements')
+      .select('*')
+      .order('created_at', { ascending: false });
+      
+    if (error) throw error;
+    allAnnouncements = data || [];
     renderAnnouncements(allAnnouncements);
   } catch (e) {
-    list.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation"></i><p>Error loading. Check Firebase setup.</p></div>';
+    list.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation"></i><p>Error loading. Check Supabase setup.</p></div>';
   }
 }
 
 function renderAnnouncements(announcements) {
   const list = document.getElementById('annList');
+  if (!list) return;
+  
   if (announcements.length === 0) {
     list.innerHTML = '<div class="empty-state"><i class="fas fa-bullhorn"></i><p>No announcements yet. Post the first one!</p></div>';
     return;
@@ -35,7 +43,10 @@ function renderAnnouncements(announcements) {
   announcements.forEach(ann => {
     const cat = ann.category || 'general';
     const icon = CATEGORY_ICONS[cat] || 'fas fa-info-circle';
-    const date = ann.eventDate || (ann.createdAt?.toDate ? ann.createdAt.toDate().toLocaleDateString() : '');
+    let date = ann.event_date || ann.eventDate || '';
+    if (!date && ann.created_at) {
+      date = new Date(ann.created_at).toLocaleDateString();
+    }
 
     const card = document.createElement('div');
     card.className = 'ann-card';
@@ -47,7 +58,7 @@ function renderAnnouncements(announcements) {
         <div class="ann-card-footer">
           <span class="ann-badge ${cat}">${cat.toUpperCase()}</span>
           ${date ? `<span><i class="fas fa-calendar"></i> ${date}</span>` : ''}
-          <span><i class="fas fa-user"></i> ${ann.postedBy || 'Admin'}</span>
+          <span><i class="fas fa-user"></i> ${ann.posted_by || ann.postedBy || 'Admin'}</span>
           <button class="ann-delete" onclick="deleteAnn('${ann.id}')"><i class="fas fa-trash"></i> Delete</button>
         </div>
       </div>`;
@@ -57,7 +68,7 @@ function renderAnnouncements(announcements) {
 
 function filterAnn(category) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  if (event && event.target) event.target.classList.add('active');
   const filtered = category === 'all' ? allAnnouncements : allAnnouncements.filter(a => a.category === category);
   renderAnnouncements(filtered);
 }
@@ -78,21 +89,31 @@ async function postAnnouncement() {
     return;
   }
 
-  const user = auth.currentUser;
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+  if (!session) return;
+
   let postedBy = 'Admin';
   try {
-    const doc = await db.collection('users').doc(user.uid).get();
-    if (doc.exists) postedBy = doc.data().name;
+    const { data: profile } = await window.supabaseClient
+      .from('profiles')
+      .select('name')
+      .eq('id', session.user.id)
+      .single();
+    if (profile) postedBy = profile.name;
   } catch (e) { }
 
   try {
-    await db.collection('announcements').add({
-      title, category, content,
-      eventDate: date || null,
-      postedBy,
-      uid: user.uid,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    const { error } = await window.supabaseClient.from('announcements').insert([{
+      title, 
+      category, 
+      content,
+      event_date: date || null,
+      posted_by: postedBy,
+      user_id: session.user.id
+    }]);
+    
+    if (error) throw error;
+    
     msgEl.textContent = 'Announcement posted! ✅';
     msgEl.className = 'auth-msg success';
     await loadAnnouncements();
@@ -111,6 +132,6 @@ async function postAnnouncement() {
 
 async function deleteAnn(id) {
   if (!confirm('Delete this announcement?')) return;
-  await db.collection('announcements').doc(id).delete();
+  await window.supabaseClient.from('announcements').delete().eq('id', id);
   loadAnnouncements();
 }

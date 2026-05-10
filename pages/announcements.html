@@ -3,40 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Announcements — College Hub</title>
+  <title>Announcements — Smart Student Portal</title>
   <link rel="stylesheet" href="../css/style.css"/>
-  <style>
-    .ann-card {
-      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 1.5rem; margin-bottom: 1rem; transition: all 0.25s;
-      position: relative; overflow: hidden;
-    }
-    .ann-card:hover { border-color: rgba(255,255,255,0.1); transform: translateX(4px); }
-    .ann-card.priority-high::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background: var(--red); }
-    .ann-card.priority-medium::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background: var(--orange); }
-    .ann-card.priority-low::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background: var(--green); }
-
-    .ann-header { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; }
-    .ann-title { font-family:var(--font-head); font-size:1.05rem; font-weight:700; color:var(--white); }
-    .ann-body { color:var(--muted); font-size:0.9rem; line-height:1.6; margin-bottom:12px; }
-    .ann-footer { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
-    .ann-meta { font-size:0.78rem; color:var(--muted); display:flex; align-items:center; gap:12px; }
-    .ann-badges { display:flex; gap:8px; align-items:center; }
-
-    .pinned-banner {
-      background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(249,115,22,0.1));
-      border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius);
-      padding: 1rem 1.25rem; margin-bottom: 1.5rem;
-      display: flex; align-items: center; gap: 12px; font-size:0.9rem;
-    }
-    .type-select { display:flex; gap:6px; flex-wrap:wrap; margin-bottom: 1.5rem; }
-    .type-btn {
-      padding: 6px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 600;
-      border: 1px solid var(--border); background: var(--card); color: var(--muted);
-      cursor: pointer; transition: all 0.2s;
-    }
-    .type-btn:hover, .type-btn.active { background: var(--card2); color: var(--text); border-color: rgba(255,255,255,0.15); }
-  </style>
+  <link rel="stylesheet" href="../css/dashboard.css" />
 </head>
 <body>
   <div id="nav-root"></div>

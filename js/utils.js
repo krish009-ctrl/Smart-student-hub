@@ -1,4 +1,4 @@
-// shared stuff for college hub
+﻿// shared stuff for smart student portal
 
 // all our subjects with colors and stuff
 const SUBJECTS = [
@@ -30,7 +30,7 @@ function renderNav(activePage) {
   return `
   <nav class="navbar">
     <a href="../index.html" class="nav-logo">
-      🎓 <span>College Hub</span>
+      🎓 <span>Smart Student Portal</span>
     </a>
     <ul class="nav-links" id="navLinks">${linksHtml}</ul>
     <div class="nav-right">
@@ -59,7 +59,7 @@ function renderHomeNav(activePage) {
 
   return `
   <nav class="navbar">
-    <a href="index.html" class="nav-logo">🎓 <span>College Hub</span></a>
+    <a href="index.html" class="nav-logo">🎓 <span>Smart Student Portal</span></a>
     <ul class="nav-links" id="navLinks">${linksHtml}</ul>
     <div class="nav-right">
       <span class="nav-badge">6th Sem · CS/IT</span>

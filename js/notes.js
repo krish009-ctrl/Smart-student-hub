@@ -1,6 +1,4 @@
-// notes page - upload, view, filter, delete notes
-
-const SUBJECT_COLORS = {
+﻿const SUBJECT_COLORS = {
   'network-management': '#0ea5e9',
   'data-information-security': '#8b5cf6',
   'wireless-media-communication': '#10b981',
@@ -17,37 +15,47 @@ const SUBJECT_NAMES = {
 let allNotes = [];
 let currentFilter = 'all';
 
-document.addEventListener('DOMContentLoaded', () => {
-  // check if theres a subject in the url (coming from home page cards)
-  const params = new URLSearchParams(window.location.search);
-  const subjectParam = params.get('subject');
-  if (subjectParam) {
-    currentFilter = subjectParam;
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('onclick').includes(subjectParam));
-    });
-  }
-  loadNotes();
-});
-
 async function loadNotes() {
   const grid = document.getElementById('notesGrid');
+  if (!grid) return;
+  
   grid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading notes...</div>';
+
   try {
-    const snap = await db.collection('notes').orderBy('createdAt', 'desc').get();
-    allNotes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const { data, error } = await window.supabaseClient
+      .from('notes')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    allNotes = data || [];
     renderNotes(allNotes);
-  } catch (e) {
-    grid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading notes. Check Firebase setup.</p></div>';
+  } catch (error) {
+    console.error('Error loading notes:', error);
+    grid.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-exclamation-circle"></i>
+        <h3>Could not load notes</h3>
+        <p>Check your Supabase setup and internet connection.</p>
+      </div>`;
   }
 }
 
 function renderNotes(notes) {
   const grid = document.getElementById('notesGrid');
-  const filtered = currentFilter === 'all' ? notes : notes.filter(n => n.subject === currentFilter);
+  if (!grid) return;
+
+  const filtered = currentFilter === 'all'
+    ? notes
+    : notes.filter(n => n.subject === currentFilter);
 
   if (filtered.length === 0) {
-    grid.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><p>No notes found. Be the first to upload!</p></div>';
+    grid.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-file-alt"></i>
+        <h3>No notes found</h3>
+        <p>Be the first to upload notes!</p>
+      </div>`;
     return;
   }
 
@@ -55,59 +63,47 @@ function renderNotes(notes) {
   filtered.forEach(note => {
     const color = SUBJECT_COLORS[note.subject] || '#0ea5e9';
     const subjectName = SUBJECT_NAMES[note.subject] || note.subject;
-    const date = note.createdAt?.toDate ? note.createdAt.toDate().toLocaleDateString() : 'Recently';
+    
+    let dateStr = 'Recently';
+    if (note.created_at) {
+      dateStr = new Date(note.created_at).toLocaleDateString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric'
+      });
+    }
 
     const card = document.createElement('div');
     card.className = 'note-card';
     card.innerHTML = `
       <div class="note-card-top">
         <div>
-          <span style="font-size:0.78rem;font-weight:600;color:${color};background:${color}22;padding:3px 10px;border-radius:20px">${subjectName}</span>
+          <span style="font-size:0.78rem;font-weight:600;color:${color};background:${color}22;padding:3px 10px;border-radius:20px">
+            ${subjectName}
+          </span>
         </div>
         <div class="note-subject-dot" style="background:${color}"></div>
       </div>
       <h3>${note.title}</h3>
       <div class="note-meta">
         ${note.unit ? `<span><i class="fas fa-bookmark"></i> ${note.unit}</span>` : ''}
-        <span><i class="fas fa-user"></i> ${note.uploadedBy || 'Student'}</span>
-        <span><i class="fas fa-calendar"></i> ${date}</span>
+        <span><i class="fas fa-user"></i> ${note.uploaded_by || 'Student'}</span>
+        <span><i class="fas fa-calendar"></i> ${dateStr}</span>
       </div>
       ${note.description ? `<p class="note-desc">${note.description}</p>` : ''}
       <div class="note-actions">
-        <button class="btn-sm download" onclick="downloadNote('${note.fileUrl}','${note.title}')">
-          <i class="fas fa-download"></i> Download
-        </button>
-        <button class="btn-sm delete" onclick="deleteNote('${note.id}','${note.fileRef || ''}')">
+        ${note.file_url ? `
+          <button class="btn-sm download" onclick="viewNote('${note.file_url}')">
+            <i class="fas fa-eye"></i> View
+          </button>
+          <button class="btn-sm download" onclick="downloadNote('${note.file_url}', '${note.title}.pdf')">
+            <i class="fas fa-download"></i> Download
+          </button>
+        ` : ''}
+        <button class="btn-sm delete" onclick="deleteNote('${note.id}', '${note.file_url || ''}')">
           <i class="fas fa-trash"></i>
         </button>
       </div>`;
     grid.appendChild(card);
   });
-}
-
-function filterNotes(subject) {
-  currentFilter = subject;
-  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-  renderNotes(allNotes);
-}
-
-function searchNotes() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const filtered = allNotes.filter(n =>
-    n.title.toLowerCase().includes(q) ||
-    (SUBJECT_NAMES[n.subject] || '').toLowerCase().includes(q) ||
-    (n.unit || '').toLowerCase().includes(q)
-  );
-  renderNotes(filtered);
-}
-
-function openUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
-function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); }
-
-function fileSelected(input) {
-  const name = input.files[0]?.name || 'No file chosen';
-  document.getElementById('fileName').textContent = name;
 }
 
 async function uploadNote() {
@@ -117,92 +113,204 @@ async function uploadNote() {
   const desc = document.getElementById('noteDesc').value.trim();
   const file = document.getElementById('noteFile').files[0];
 
-  if (!title || !subject) return showUploadMsg('Please fill title and subject.', 'error');
-  if (!file) return showUploadMsg('Please select a file to upload.', 'error');
-  if (file.size > 10 * 1024 * 1024) return showUploadMsg('File too large. Max 10MB.', 'error');
+  if (!title || !subject) {
+    return showUploadMsg('Please fill in the title and select a subject.', 'error');
+  }
+  if (!file) {
+    return showUploadMsg('Please select a file to upload.', 'error');
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    return showUploadMsg('File too large! Maximum size is 10MB.', 'error');
+  }
 
-  const user = auth.currentUser;
-  if (!user) return showUploadMsg('Please log in again.', 'error');
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+  if (!session) {
+    return showUploadMsg('You need to be logged in to upload notes.', 'error');
+  }
 
-  // get the user's name for the uploaded-by field
   let uploaderName = 'Student';
   try {
-    const userDoc = await db.collection('users').doc(user.uid).get();
-    if (userDoc.exists) uploaderName = userDoc.data().name;
+    const { data: profile } = await window.supabaseClient
+      .from('profiles')
+      .select('name')
+      .eq('id', session.user.id)
+      .single();
+    if (profile) uploaderName = profile.name;
   } catch (e) { }
 
-  document.getElementById('uploadProgress').classList.remove('hidden');
+  const progressDiv = document.getElementById('uploadProgress');
   const progressFill = document.getElementById('progressFill');
   const progressText = document.getElementById('progressText');
+  if (progressDiv) progressDiv.classList.remove('hidden');
 
   try {
-    const fileRef = `notes/${subject}/${Date.now()}_${file.name}`;
-    const storageRef = storage.ref(fileRef);
-    const uploadTask = storageRef.put(file);
+    const filePath = `notes/${subject}/${Date.now()}_${file.name}`;
+    
+    // Quick fake progress since Supabase JS doesn't have an easy native progress event listener for small files
+    let prog = 0;
+    const interval = setInterval(() => {
+      prog += 10;
+      if (prog > 90) prog = 90;
+      if (progressFill) progressFill.style.width = prog + '%';
+      if (progressText) progressText.textContent = prog + '%';
+    }, 200);
 
-    uploadTask.on('state_changed',
-      (snapshot) => {
-        const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-        progressFill.style.width = pct + '%';
-        progressText.textContent = pct + '%';
-      },
-      (error) => {
-        showUploadMsg('Upload failed: ' + error.message, 'error');
-        document.getElementById('uploadProgress').classList.add('hidden');
-      },
-      async () => {
-        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-        await db.collection('notes').add({
-          title, subject, unit, description: desc,
-          fileUrl: downloadURL,
-          fileRef: fileRef,
-          fileName: file.name,
-          fileSize: file.size,
-          uploadedBy: uploaderName,
-          uid: user.uid,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        showUploadMsg('Note uploaded successfully! ✅', 'success');
-        setTimeout(() => {
-          closeUploadModal();
-          document.getElementById('uploadProgress').classList.add('hidden');
-          progressFill.style.width = '0%';
-          document.getElementById('noteTitle').value = '';
-          document.getElementById('noteSubject').value = '';
-          document.getElementById('noteUnit').value = '';
-          document.getElementById('noteDesc').value = '';
-          document.getElementById('noteFile').value = '';
-          document.getElementById('fileName').textContent = 'No file chosen';
-          loadNotes();
-        }, 1500);
+    const { data: uploadData, error: uploadError } = await window.supabaseClient.storage
+      .from('notes-pdfs')
+      .upload(filePath, file);
+
+    clearInterval(interval);
+    if (progressFill) progressFill.style.width = '100%';
+    if (progressText) progressText.textContent = '100%';
+
+    if (uploadError) throw uploadError;
+
+    const { data: publicUrlData } = window.supabaseClient.storage
+      .from('notes-pdfs')
+      .getPublicUrl(filePath);
+
+    const { error: dbError } = await window.supabaseClient.from('notes').insert([
+      {
+        title: title,
+        subject: subject,
+        uploaded_by: uploaderName,
+        file_url: publicUrlData.publicUrl
       }
-    );
-  } catch (e) {
-    showUploadMsg('Error: ' + e.message, 'error');
+    ]);
+
+    if (dbError) throw dbError;
+
+    showUploadMsg('Note uploaded successfully! ✅', 'success');
+
+    setTimeout(() => {
+      closeUploadModal();
+      if (progressDiv) progressDiv.classList.add('hidden');
+      if (progressFill) progressFill.style.width = '0%';
+      document.getElementById('noteTitle').value = '';
+      document.getElementById('noteSubject').value = '';
+      document.getElementById('noteUnit').value = '';
+      document.getElementById('noteDesc').value = '';
+      document.getElementById('noteFile').value = '';
+      document.getElementById('fileName').textContent = 'No file chosen';
+      loadNotes();
+    }, 1500);
+  } catch (error) {
+    showUploadMsg('Error: ' + error.message, 'error');
+    if (progressDiv) progressDiv.classList.add('hidden');
   }
 }
 
-function downloadNote(url, title) {
+function viewNote(url) {
+  window.open(url, '_blank');
+}
+
+function downloadNote(url, filename) {
   const a = document.createElement('a');
   a.href = url;
   a.target = '_blank';
-  a.download = title;
+  a.download = filename;
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
 }
 
-async function deleteNote(id, fileRef) {
+async function deleteNote(noteId, fileUrl) {
   if (!confirm('Delete this note? This cannot be undone.')) return;
+
   try {
-    await db.collection('notes').doc(id).delete();
-    if (fileRef) await storage.ref(fileRef).delete().catch(() => { });
+    await window.supabaseClient.from('notes').delete().eq('id', noteId);
+
+    if (fileUrl) {
+      try {
+        const bucketPathStr = '/object/public/notes-pdfs/';
+        const pathIndex = fileUrl.indexOf(bucketPathStr);
+        if (pathIndex !== -1) {
+          const filePath = fileUrl.substring(pathIndex + bucketPathStr.length);
+          await window.supabaseClient.storage.from('notes-pdfs').remove([decodeURIComponent(filePath)]);
+        }
+      } catch (e) {
+        console.log('File deletion warning:', e.message);
+      }
+    }
+
     loadNotes();
-  } catch (e) {
-    alert('Error deleting note: ' + e.message);
+  } catch (error) {
+    alert('Error deleting note: ' + error.message);
   }
+}
+
+function filterNotes(subject) {
+  currentFilter = subject;
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  if (event && event.target) event.target.classList.add('active');
+  renderNotes(allNotes);
+}
+
+function searchNotes() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = allNotes.filter(note =>
+    note.title.toLowerCase().includes(query) ||
+    (SUBJECT_NAMES[note.subject] || '').toLowerCase().includes(query) ||
+    (note.unit || '').toLowerCase().includes(query) ||
+    (note.description || '').toLowerCase().includes(query)
+  );
+  renderNotes(filtered);
+}
+
+function openUploadModal() {
+  const modal = document.getElementById('uploadModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeUploadModal() {
+  const modal = document.getElementById('uploadModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function fileSelected(input) {
+  const name = input.files[0]?.name || 'No file chosen';
+  const nameEl = document.getElementById('fileName');
+  if (nameEl) nameEl.textContent = name;
 }
 
 function showUploadMsg(msg, type) {
   const el = document.getElementById('uploadMsg');
-  el.textContent = msg;
-  el.className = 'auth-msg ' + type;
+  if (el) {
+    el.textContent = msg;
+    el.className = 'auth-msg ' + type;
+  }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const subjectParam = params.get('subject');
+  if (subjectParam) {
+    currentFilter = subjectParam;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(subjectParam)) {
+        btn.classList.add('active');
+      } else if (!btn.getAttribute('onclick')?.includes("'all'")) {
+        btn.classList.remove('active');
+      }
+    });
+  }
+  loadNotes();
+});
+
+// Drag & drop support
+document.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('dropZone');
+  if (dz) {
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragging'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('dragging'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault();
+      dz.classList.remove('dragging');
+      const fileInput = document.getElementById('noteFile');
+      if (fileInput) {
+        fileInput.files = e.dataTransfer.files;
+        if (typeof fileSelected === 'function') fileSelected(fileInput);
+      }
+    });
+  }
+});

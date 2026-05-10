@@ -20,6 +20,7 @@ function renderNav(activePage) {
     { href: "timetable.html", icon: "🗓️", label: "Timetable" },
     { href: "attendance.html", icon: "✅", label: "Attendance" },
     { href: "ai-summarizer.html", icon: "🤖", label: "AI Summarizer" },
+    { href: "login.html", icon: "🔐", label: "Login" },
   ];
 
   const linksHtml = pages.map(p =>
@@ -49,6 +50,7 @@ function renderHomeNav(activePage) {
     { href: "pages/timetable.html", icon: "🗓️", label: "Timetable" },
     { href: "pages/attendance.html", icon: "✅", label: "Attendance" },
     { href: "pages/ai-summarizer.html", icon: "🤖", label: "AI Summarizer" },
+    { href: "pages/login.html", icon: "🔐", label: "Login" },
   ];
 
   const linksHtml = pages.map(p =>

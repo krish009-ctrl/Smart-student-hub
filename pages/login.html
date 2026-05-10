@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Student Login — College Hub for Government Polytechnic College Jammu" />
+  <title>Login — College Hub GPC Jammu</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ── Login Page Overrides ── */
+    body {
+      overflow: hidden;
+    }
+
+    .login-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated grid background */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(59, 130, 246, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridDrift 20s linear infinite;
+    }
+
+    @keyframes gridDrift {
+      from {
+        transform: translate(0, 0);
+      }
+
+      to {
+        transform: translate(60px, 60px);
+      }
+    }
+
+    /* Floating orbs */
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.1;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .orb1 {
+      width: 500px;
+      height: 500px;
+      background: var(--primary);
+      top: -150px;
+      left: -120px;
+      animation: floatOrb 10s ease-in-out infinite;
+    }
+
+    .orb2 {
+      width: 350px;
+      height: 350px;
+      background: #8b5cf6;
+      bottom: -80px;
+      right: 5%;
+      animation: floatOrb 12s ease-in-out infinite reverse;
+    }
+
+    .orb3 {
+      width: 280px;
+      height: 280px;
+      background: #22c55e;
+      top: 40%;
+      left: 55%;
+      animation: floatOrb 14s ease-in-out infinite 2s;
+    }
+
+    @keyframes floatOrb {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-40px) scale(1.08);
+      }
+    }
+
+    /* Main layout */
+    .login-container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 80px;
+      max-width: 1100px;
+      width: 92%;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    /* Left panel - branding */
+    .login-left {
+      flex: 1;
+      animation: slideInLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .brand-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+    }
+
+    .brand h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+    }
+
+    .brand h1 span {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 420px;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text2);
+      font-size: 0.95rem;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+
+    .feature-list li:hover {
+      background: rgba(59, 130, 246, 0.06);
+      border-color: rgba(59, 130, 246, 0.15);
+      transform: translateX(6px);
+    }
+
+    .feature-list li .feat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .feature-list li:nth-child(1) .feat-icon {
+      background: rgba(59, 130, 246, 0.12);
+    }
+
+    .feature-list li:nth-child(2) .feat-icon {
+      background: rgba(139, 92, 246, 0.12);
+    }
+
+    .feature-list li:nth-child(3) .feat-icon {
+      background: rgba(34, 197, 94, 0.12);
+    }
+
+    .feature-list li:nth-child(4) .feat-icon {
+      background: rgba(249, 115, 22, 0.12);
+    }
+
+    .feature-list li span {
+      font-weight: 500;
+    }
+
+    /* Right panel - auth card */
+    .login-right {
+      flex: 0 0 420px;
+      animation: slideInRight 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .auth-card {
+      background: rgba(21, 28, 46, 0.75);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    /* Tab switcher */
+    .tab-switcher {
+      display: flex;
+      gap: 4px;
+      background: rgba(17, 24, 39, 0.8);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 11px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+    }
+
+    .tab-btn:not(.active):hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* Form styles */
+    .auth-form h2 {
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .auth-form .sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
+    .form-field {
+      margin-bottom: 18px;
+    }
+
+    .form-field label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text3);
+      margin-bottom: 8px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      opacity: 0.4;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      background: rgba(17, 24, 39, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      transition: all 0.3s;
+      outline: none;
+    }
+
+    .input-wrapper input::placeholder {
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      background: rgba(17, 24, 39, 0.9);
+    }
+
+    .input-wrapper input:focus~.input-icon {
+      opacity: 0.8;
+    }
+
+    /* Password toggle */
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+
+    .toggle-password:hover {
+      color: var(--text);
+    }
+
+    /* Submit button */
+    .btn-login {
+      width: 100%;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-login::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-login:hover::before {
+      transform: translateX(100%);
+    }
+
+    .btn-login:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .btn-login.loading {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 24px 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* Switch text */
+    .switch-text {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .switch-text a {
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .switch-text a:hover {
+      color: var(--accent2);
+    }
+
+    /* Auth message */
+    .auth-msg {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      display: none;
+      text-align: center;
+      font-weight: 500;
+      animation: msgFade 0.3s ease;
+    }
+
+    @keyframes msgFade {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .auth-msg.success {
+      display: block;
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .auth-msg.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Footer */
+    .login-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      text-align: center;
+      padding: 16px 20px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      z-index: 1;
+      opacity: 0.6;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .login-container {
+        flex-direction: column;
+        gap: 40px;
+        padding: 60px 20px 100px;
+      }
+
+      body {
+        overflow: auto;
+      }
+
+      .login-left {
+        text-align: center;
+      }
+
+      .brand {
+        justify-content: center;
+      }
+
+      .tagline {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .feature-list {
+        display: none;
+      }
+
+      .login-right {
+        flex: none;
+        width: 100%;
+        max-width: 420px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .login-right {
+        max-width: 100%;
+      }
+
+      .auth-card {
+        padding: 28px 22px;
+        border-radius: 16px;
+      }
+
+      .brand h1 {
+        font-size: 1.5rem;
+      }
+
+      .tagline {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Background effects -->
+  <div class="bg-grid"></div>
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
+
+  <div class="login-page">
+    <div class="login-container">
+
+      <!-- Left: branding & features -->
+      <div class="login-left">
+        <div class="brand">
+          <div class="brand-icon">🎓</div>
+          <h1>College<span>Hub</span></h1>
+        </div>
+        <p class="tagline">
+          Your one-stop student portal for GPC Jammu.<br>
+          Notes, timetable, attendance, and AI tools — all in one place.
+        </p>
+        <ul class="feature-list">
+          <li>
+            <div class="feat-icon">📚</div>
+            <span>Upload & access notes anytime</span>
+          </li>
+          <li>
+            <div class="feat-icon">🗓️</div>
+            <span>View your weekly timetable</span>
+          </li>
+          <li>
+            <div class="feat-icon">✅</div>
+            <span>Track attendance per subject</span>
+          </li>
+          <li>
+            <div class="feat-icon">🤖</div>
+            <span>Summarize notes instantly with AI</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Right: auth card -->
+      <div class="login-right">
+        <div class="auth-card">
+
+          <!-- Tab switcher -->
+          <div class="tab-switcher">
+            <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+            <button class="tab-btn" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
+          </div>
+
+          <!-- Login Form -->
+          <div id="loginForm" class="auth-form">
+            <h2>Welcome back 👋</h2>
+            <p class="sub">Sign in to continue to your dashboard</p>
+
+            <div class="form-field">
+              <label for="loginEmail">Email Address</label>
+              <div class="input-wrapper">
+                <input type="email" id="loginEmail" placeholder="your.email@gpcjammu.edu" autocomplete="email" />
+                <span class="input-icon">✉️</span>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="loginPassword">Password</label>
+              <div class="input-wrapper">
+                <input type="password" id="loginPassword" placeholder="Enter your password"
+                  autocomplete="current-password" />
+                <span class="input-icon">🔒</span>
+                <button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)"
+                  aria-label="Toggle password visibility">👁️</button>
+              </div>
+            </div>
+
+            <button class="btn-login" id="loginBtn" onclick="loginUser()">
+              Sign In →
+            </button>
+
+            <p class="switch-text">
+              Don't have an account? <a onclick="switchTab('signup')">Create one</a>
+            </p>
+          </div>
+
+          <!-- Signup Form -->
+          <div id="signupForm" class="auth-form hidden">
+            <h2>Create Account ✨</h2>
+            <p class="sub">Join College Hub to get started</p>
+
+            <div class="form-field">
+              <label for="signupName">Full Name</label>
+              <div class="input-wrapper">
+                <input type="text" id="signupName" placeholder="e.g. Rahul Sharma" autocomplete="name" />
+                <span class="input-icon">👤</span>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="signupEmail">Email Address</label>
+              <div class="input-wrapper">
+                <input type="email" id="signupEmail" placeholder="your.email@gpcjammu.edu" autocomplete="email" />
+                <span class="input-icon">✉️</span>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="signupRoll">Roll Number</label>
+              <div class="input-wrapper">
+                <input type="text" id="signupRoll" placeholder="e.g. 2023-CS-042" />
+                <span class="input-icon">🎫</span>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="signupPassword">Password</label>
+              <div class="input-wrapper">
+                <input type="password" id="signupPassword" placeholder="Min. 6 characters"
+                  autocomplete="new-password" />
+                <span class="input-icon">🔒</span>
+                <button type="button" class="toggle-password"
+                  onclick="togglePasswordVisibility('signupPassword', this)"
+                  aria-label="Toggle password visibility">👁️</button>
+              </div>
+            </div>
+
+            <button class="btn-login" id="signupBtn" onclick="signupUser()">
+              Create Account →
+            </button>
+
+            <p class="switch-text">
+              Already have an account? <a onclick="switchTab('login')">Sign in</a>
+            </p>
+          </div>
+
+          <!-- Auth messages -->
+          <div id="authMsg" class="auth-msg"></div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="login-footer">
+    Built with ❤️ by CS/IT Students · Government Polytechnic College, Jammu
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+
+  <script>
+    // if already logged in, redirect to dashboard
+    auth.onAuthStateChanged((user) => {
+      if (user) window.location.href = 'dashboard.html';
+    });
+
+    // tab switching
+    function switchTab(tab) {
+      document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+      document.getElementById('signupForm').classList.toggle('hidden', tab !== 'signup');
+      document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+      document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+      clearMsg();
+    }
+
+    // login
+    async function loginUser() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!email || !password) return showMsg('Please fill in all fields.', 'error');
+
+      const btn = document.getElementById('loginBtn');
+      btn.classList.add('loading');
+      btn.textContent = 'Signing in...';
+      showMsg('Signing in...', 'success');
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        window.location.href = 'dashboard.html';
+      } catch (e) {
+        showMsg(getAuthError(e.code), 'error');
+        btn.classList.remove('loading');
+        btn.innerHTML = 'Sign In →';
+      }
+    }
+
+    // signup
+    async function signupUser() {
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const roll = document.getElementById('signupRoll').value.trim();
+      const password = document.getElementById('signupPassword').value;
+
+      if (!name || !email || !roll || !password) return showMsg('Please fill all fields.', 'error');
+      if (password.length < 6) return showMsg('Password must be at least 6 characters.', 'error');
+
+      const btn = document.getElementById('signupBtn');
+      btn.classList.add('loading');
+      btn.textContent = 'Creating account...';
+      showMsg('Creating account...', 'success');
+
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        await db.collection('users').doc(cred.user.uid).set({
+          name, email, roll,
+          branch: 'CS/IT',
+          semester: '6th',
+          college: 'Government Polytechnic College Jammu',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        window.location.href = 'dashboard.html';
+      } catch (e) {
+        showMsg(getAuthError(e.code), 'error');
+        btn.classList.remove('loading');
+        btn.innerHTML = 'Create Account →';
+      }
+    }
+
+    // toggle password visibility
+    function togglePasswordVisibility(inputId, toggleBtn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        toggleBtn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        toggleBtn.textContent = '👁️';
+      }
+    }
+
+    // helpers
+    function showMsg(msg, type) {
+      const el = document.getElementById('authMsg');
+      if (!el) return;
+      el.textContent = msg;
+      el.className = 'auth-msg ' + type;
+    }
+
+    function clearMsg() {
+      const el = document.getElementById('authMsg');
+      if (el) { el.textContent = ''; el.className = 'auth-msg'; }
+    }
+
+    function getAuthError(code) {
+      const errors = {
+        'auth/user-not-found': 'No account found with this email.',
+        'auth/wrong-password': 'Incorrect password.',
+        'auth/email-already-in-use': 'This email is already registered.',
+        'auth/invalid-email': 'Invalid email address.',
+        'auth/weak-password': 'Password is too weak.',
+        'auth/too-many-requests': 'Too many attempts. Try again later.',
+      };
+      return errors[code] || 'Something went wrong. Please try again.';
+    }
+
+    // handle Enter key on inputs
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const loginVisible = !document.getElementById('loginForm').classList.contains('hidden');
+      if (loginVisible) loginUser();
+      else signupUser();
+    });
+  </script>
+</body>
+
+</html>

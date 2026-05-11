@@ -247,9 +247,15 @@ select.form-control option { background:var(--bg2); }
 }
 .modal-close:hover { color:var(--red); background:rgba(239,68,68,0.1); }
 
-/* Old modal styles for dashboard */
+/* Old modal styles for dashboard — standalone .modal backdrop */
 .modal { position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; }
-.modal-overlay + .modal { position:static; }
+
+/* When .modal is the inner content box inside .modal-overlay, reset standalone styles */
+.modal-overlay .modal {
+  position:relative !important; inset:auto !important;
+  display:block !important;
+}
+
 .modal-box {
   position:relative; z-index:1; background:var(--card); border:1px solid var(--border);
   border-radius:var(--radius-lg); width:90%; max-width:500px; max-height:90vh;
@@ -484,6 +490,8 @@ select.form-control option { background:var(--bg2); }
 .attendance-form-card {
   background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px;
 }
+
+
 
 /* ── TIMETABLE ── */
 .today-banner {

@@ -4,55 +4,130 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Attendance — Smart Student Portal</title>
+  <meta name="description" content="Track your subject-wise attendance. Stay above 75% to remain eligible for exams."/>
   <link rel="stylesheet" href="../css/style.css"/>
-  <link rel="stylesheet" href="../css/dashboard.css" />
+  <link rel="stylesheet" href="../css/dashboard.css"/>
+  <link rel="stylesheet" href="../css/attendance.css"/>
 </head>
 <body>
   <div id="nav-root"></div>
   <div id="toast-container"></div>
+
   <div class="page-wrapper">
     <div class="container">
-      <div class="page-header">
-        <div class="breadcrumb"><a href="../index.html">Home</a> › Attendance</div>
-        <h1>✅ Attendance Tracker</h1>
-        <p>Track your attendance per subject. You need ≥75% to be eligible for exams.</p>
+
+      <!-- Page Header -->
+      <div class="att-page-header">
+        <div class="att-page-header-left">
+          <div class="breadcrumb"><a href="../index.html">Home</a> › Attendance</div>
+          <h1>Attendance Tracker</h1>
+          <p>Track your subject-wise attendance. Maintain ≥75% to stay exam-eligible.</p>
+        </div>
       </div>
 
-      <!-- Overall -->
-      <div class="overall-card">
-        <div>
-          <div class="overall-num" id="overall-pct">—</div>
-          <div class="overall-label">Overall Attendance</div>
-        </div>
-        <div style="flex:1; max-width:360px;">
-          <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--muted); margin-bottom:6px;">
-            <span>Total Progress</span>
-            <span id="overall-counts"></span>
+      <!-- Hero Card -->
+      <div class="att-hero">
+        <!-- Circular ring -->
+        <div class="att-ring-wrap">
+          <div class="att-ring-center">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              <circle class="att-ring-track" cx="70" cy="70" r="58" stroke-width="10"/>
+              <circle class="att-ring-fill" id="ring-fill" cx="70" cy="70" r="58"
+                stroke-width="10" stroke="#3b82f6"
+                stroke-dasharray="364.4" stroke-dashoffset="364.4"/>
+            </svg>
+            <div class="att-ring-text">
+              <span class="att-ring-pct" id="overall-pct">—</span>
+              <span class="att-ring-label">OVERALL</span>
+            </div>
           </div>
-          <div class="progress-wrap">
-            <div class="progress-bar" id="overall-bar" style="background:var(--green);"></div>
+          <span class="att-status-badge" id="status-badge">Loading…</span>
+        </div>
+
+        <!-- Right content -->
+        <div class="att-hero-right">
+          <div>
+            <div class="att-hero-title">Attendance Summary</div>
+            <div class="att-hero-sub">Academic Year · 6th Semester · CS/IT</div>
+          </div>
+
+          <div class="att-stat-row">
+            <div class="att-stat-mini">
+              <div class="att-stat-mini-val green" id="stat-attended">—</div>
+              <div class="att-stat-mini-label">Classes Attended</div>
+            </div>
+            <div class="att-stat-mini">
+              <div class="att-stat-mini-val red" id="stat-missed">—</div>
+              <div class="att-stat-mini-label">Classes Missed</div>
+            </div>
+            <div class="att-stat-mini">
+              <div class="att-stat-mini-val blue" id="stat-total">—</div>
+              <div class="att-stat-mini-label">Total Classes</div>
+            </div>
+          </div>
+
+          <div class="att-hero-bar-wrap">
+            <div class="att-hero-bar-labels">
+              <span>Attendance Progress</span>
+              <span id="overall-counts">—</span>
+            </div>
+            <div class="att-hero-bar-track">
+              <div class="att-hero-bar-fill" id="overall-bar" style="width:0%"></div>
+              <div class="att-hero-bar-threshold"></div>
+            </div>
+          </div>
+
+          <div class="att-hero-actions">
+            <button class="btn btn-primary" onclick="openMarkModal()">📋 Mark Today's Attendance</button>
           </div>
         </div>
-        <button class="btn btn-primary" onclick="openMarkModal()">📋 Mark Today's Attendance</button>
       </div>
 
-      <!-- Subject cards -->
-      <h2 class="section-title"><span class="icon">📚</span> Subject-wise Attendance</h2>
-      <div class="card-grid" id="att-grid"></div>
+      <!-- Insights Row -->
+      <div class="att-insights" id="att-insights">
+        <!-- Populated by JS -->
+      </div>
 
-      <!-- Log -->
-      <div class="log-section">
-        <h2 class="section-title" style="margin-top:2rem;"><span class="icon">📅</span> Recent Log <button class="btn btn-ghost btn-sm" onclick="clearLog()" style="margin-left:auto; font-size:0.75rem;">Clear Log</button></h2>
-        <div class="card">
-          <div id="att-log"></div>
+      <!-- Subject Cards -->
+      <div class="att-section-header">
+        <div class="att-section-title"><span class="icon">📚</span> Subject-wise Breakdown</div>
+      </div>
+      <div class="att-subjects-grid" id="att-grid"></div>
+
+      <!-- Analytics -->
+      <div class="att-section-header">
+        <div class="att-section-title"><span class="icon">📊</span> Analytics</div>
+      </div>
+      <div class="att-analytics">
+        <div class="att-chart-card">
+          <div class="att-chart-title"><span>📈</span> Subject Comparison</div>
+          <div class="att-chart-canvas-wrap">
+            <canvas id="chart-bar"></canvas>
+          </div>
+        </div>
+        <div class="att-chart-card">
+          <div class="att-chart-title"><span>🗓️</span> Attendance by Status</div>
+          <div class="att-chart-canvas-wrap">
+            <canvas id="chart-doughnut"></canvas>
+          </div>
         </div>
       </div>
+
+      <!-- Recent Log -->
+      <div class="att-log-card">
+        <div class="att-log-header">
+          <div class="att-log-header-title"><span>📅</span> Recent Attendance Log</div>
+          <button class="btn btn-ghost btn-sm" onclick="clearLog()">🗑 Clear Log</button>
+        </div>
+        <div id="att-log"></div>
+      </div>
+
     </div>
   </div>
 
-  <!-- Mark Modal -->
+  <!-- Mark Attendance Modal -->
   <div class="modal-overlay" id="mark-modal">
-    <div class="modal">
+    <div class="modal" style="max-width:620px;">
       <div class="modal-header">
         <span class="modal-title">📋 Mark Attendance</span>
         <button class="modal-close" onclick="closeMarkModal()">✕</button>
@@ -61,31 +136,412 @@
         <label>Date</label>
         <input type="date" class="form-control" id="m-date"/>
       </div>
-      <div id="mark-subjects"></div>
-      <div style="display:flex;gap:10px;margin-top:1rem;">
-        <button class="btn btn-primary" style="flex:1" onclick="saveAttendance()">✅ Save Attendance</button>
+      <div class="mark-subjects-list" id="mark-subjects"></div>
+      <div class="mark-modal-actions">
+        <button class="btn btn-primary" onclick="saveAttendance()">✅ Save Attendance</button>
         <button class="btn btn-ghost" onclick="closeMarkModal()">Cancel</button>
       </div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <script src="../js/utils.js"></script>
   <script>
     document.getElementById('nav-root').innerHTML = renderNav('Attendance');
-
-    // Set today's date as default
     document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
 
+    // Chart instances (to destroy before re-rendering)
+    let barChart = null, doughnutChart = null;
+
+    // ── STATS ──
+    function getStats(subjectId) {
+      const records = getStore('ch_attendance').filter(r => r.subjectId === subjectId && r.status !== 'holiday');
+      const present = records.filter(r => r.status === 'present').length;
+      const total   = records.length;
+      const pct     = total > 0 ? Math.round((present / total) * 100) : 0;
+      return { present, total, absent: total - present, pct };
+    }
+
+    function neededClasses(present, total) {
+      const needed = Math.ceil((0.75 * total - present) / 0.25);
+      return needed > 0 ? needed : 0;
+    }
+
+    function canMiss(present, total) {
+      const max = Math.floor(total / 4);
+      return Math.max(0, max - (total - present));
+    }
+
+    function statusInfo(pct, total) {
+      if (total === 0) return { label: 'No Data', cls: 'empty' };
+      if (pct >= 90)  return { label: '✦ Excellent', cls: 'excellent' };
+      if (pct >= 75)  return { label: '✦ Good',      cls: 'good' };
+      if (pct >= 60)  return { label: '⚠ Warning',   cls: 'warning' };
+      return           { label: '✕ Critical',         cls: 'critical' };
+    }
+
+    // ── HERO ──
+    function renderHero(totalPresent, totalClasses) {
+      const pct = totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 100) : 0;
+      const info = statusInfo(pct, totalClasses);
+
+      // Ring animation
+      const circumference = 2 * Math.PI * 58; // ~364.4
+      const offset = circumference - (pct / 100) * circumference;
+      const ringColor = pct >= 75 ? '#22c55e' : pct >= 60 ? '#f59e0b' : '#ef4444';
+
+      const fill = document.getElementById('ring-fill');
+      fill.style.stroke = ringColor;
+      // Trigger animation with slight delay
+      requestAnimationFrame(() => {
+        fill.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1), stroke 0.4s';
+        fill.style.strokeDashoffset = offset;
+      });
+
+      document.getElementById('overall-pct').textContent = pct + '%';
+      document.getElementById('overall-pct').style.color = totalClasses === 0 ? 'var(--muted)' : ringColor;
+
+      const badge = document.getElementById('status-badge');
+      badge.textContent = info.label;
+      badge.className = 'att-status-badge ' + (info.cls === 'excellent' || info.cls === 'good' ? info.cls : info.cls === 'warning' ? 'warning' : info.cls === 'critical' ? 'critical' : 'good');
+
+      document.getElementById('stat-attended').textContent = totalPresent;
+      document.getElementById('stat-missed').textContent   = totalClasses - totalPresent;
+      document.getElementById('stat-total').textContent    = totalClasses;
+      document.getElementById('overall-counts').textContent = `${totalPresent} / ${totalClasses} classes`;
+
+      const bar = document.getElementById('overall-bar');
+      bar.style.width = pct + '%';
+      bar.style.background = pct >= 75
+        ? 'linear-gradient(90deg, #16a34a, #22c55e)'
+        : pct >= 60
+          ? 'linear-gradient(90deg, #d97706, #f59e0b)'
+          : 'linear-gradient(90deg, #b91c1c, #ef4444)';
+    }
+
+    // ── INSIGHTS ──
+    function renderInsights(allStats) {
+      const container = document.getElementById('att-insights');
+      const insights = [];
+
+      // Best subject
+      const withData = allStats.filter(s => s.st.total > 0);
+      if (withData.length > 0) {
+        const best = withData.reduce((a, b) => a.st.pct >= b.st.pct ? a : b);
+        insights.push({
+          icon: '🏆', iconCls: 'green',
+          title: 'Best Attendance',
+          sub: `${best.s.emoji} ${best.s.short} — ${best.st.pct}%`
+        });
+      }
+
+      // Can miss across all
+      const totalPresent  = allStats.reduce((a, b) => a + b.st.present, 0);
+      const totalClasses  = allStats.reduce((a, b) => a + b.st.total,   0);
+      const totalCanMiss  = canMiss(totalPresent, totalClasses);
+      if (totalClasses > 0) {
+        insights.push({
+          icon: '📆', iconCls: 'blue',
+          title: 'Can Still Miss',
+          sub: `${totalCanMiss} class${totalCanMiss !== 1 ? 'es' : ''} overall`
+        });
+      }
+
+      // Subjects needing attention
+      const danger = withData.filter(s => s.st.pct < 75);
+      if (danger.length > 0) {
+        insights.push({
+          icon: '⚠️', iconCls: 'orange',
+          title: 'Needs Attention',
+          sub: `${danger.length} subject${danger.length !== 1 ? 's' : ''} below 75%`
+        });
+      } else if (withData.length > 0) {
+        insights.push({
+          icon: '✅', iconCls: 'green',
+          title: 'All Eligible',
+          sub: 'All subjects above 75%'
+        });
+      }
+
+      // Subjects with no data
+      const empty = allStats.filter(s => s.st.total === 0);
+      if (empty.length > 0) {
+        insights.push({
+          icon: '📋', iconCls: 'blue',
+          title: 'Not Started',
+          sub: `${empty.length} subject${empty.length !== 1 ? 's' : ''} have no records`
+        });
+      }
+
+      if (insights.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+      container.style.display = '';
+      container.innerHTML = insights.map(i => `
+        <div class="att-insight-card">
+          <div class="att-insight-icon ${i.iconCls}">${i.icon}</div>
+          <div class="att-insight-text">
+            <strong>${i.title}</strong>
+            <span>${i.sub}</span>
+          </div>
+        </div>`).join('');
+    }
+
+    // ── SUBJECT CARDS ──
+    function renderSubjectCards(allStats) {
+      const grid = document.getElementById('att-grid');
+      grid.innerHTML = allStats.map(({ s, st }) => {
+        const cls        = st.total === 0 ? 'empty' : st.pct >= 75 ? 'safe' : st.pct >= 60 ? 'warning' : 'danger';
+        const barColor   = st.pct >= 75
+          ? 'linear-gradient(90deg,#16a34a,#22c55e)'
+          : st.pct >= 60
+            ? 'linear-gradient(90deg,#d97706,#f59e0b)'
+            : 'linear-gradient(90deg,#b91c1c,#ef4444)';
+        const canMissCount = canMiss(st.present, st.total);
+        const needCount    = st.pct < 75 ? neededClasses(st.present, st.total) : 0;
+        const eligLabel    = st.total === 0 ? 'No Records' : st.pct >= 75 ? 'Eligible ✓' : st.pct >= 60 ? 'At Risk' : 'Not Eligible';
+
+        let alertHtml = '';
+        if (st.total === 0) {
+          alertHtml = `<div class="att-subj-alert empty">📋 No records yet — mark your first class</div>`;
+        } else if (st.pct < 75) {
+          alertHtml = `<div class="att-subj-alert warn">⚠ Attend ${needCount} more class${needCount !== 1 ? 'es' : ''} to reach 75%</div>`;
+        } else {
+          alertHtml = `<div class="att-subj-alert safe">✓ Safe — can miss ${canMissCount} more class${canMissCount !== 1 ? 'es' : ''}</div>`;
+        }
+
+        return `
+        <div class="att-subj-card" style="--subj-color:${s.color}">
+          <div class="att-subj-top">
+            <div class="att-subj-info">
+              <div class="att-subj-emoji">${s.emoji}</div>
+              <div class="att-subj-name-wrap">
+                <div class="att-subj-name" title="${s.name}">${s.name}</div>
+                <span class="att-subj-eligibility ${cls}">${eligLabel}</span>
+              </div>
+            </div>
+            <div class="att-subj-pct ${cls}">${st.total > 0 ? st.pct + '%' : '—'}</div>
+          </div>
+
+          <div class="att-subj-stats">
+            <div class="att-subj-stat">
+              <span class="att-subj-stat-val">${st.present}</span>
+              <span class="att-subj-stat-lbl">Present</span>
+            </div>
+            <div class="att-subj-stat">
+              <span class="att-subj-stat-val">${st.absent}</span>
+              <span class="att-subj-stat-lbl">Absent</span>
+            </div>
+            <div class="att-subj-stat">
+              <span class="att-subj-stat-val">${st.total}</span>
+              <span class="att-subj-stat-lbl">Total</span>
+            </div>
+          </div>
+
+          <div class="att-subj-bar-wrap">
+            <div class="att-subj-bar-track">
+              <div class="att-subj-bar-fill" style="background:${barColor}; width:${st.pct}%"></div>
+            </div>
+            <div class="att-subj-bar-label">${st.pct}% attendance</div>
+          </div>
+
+          ${alertHtml}
+
+          <div class="att-subj-actions">
+            <button class="att-quick-btn present" onclick="quickMark(${s.id},'present')">✅ Present</button>
+            <button class="att-quick-btn absent"  onclick="quickMark(${s.id},'absent')">❌ Absent</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── CHARTS ──
+    function renderCharts(allStats) {
+      Chart.defaults.color = '#64748b';
+      Chart.defaults.font.family = 'Inter, sans-serif';
+
+      const labels = allStats.map(x => x.s.short);
+      const pcts   = allStats.map(x => x.st.pct);
+      const colors = allStats.map(x => x.s.color);
+
+      // Destroy previous instances
+      if (barChart)      { barChart.destroy(); barChart = null; }
+      if (doughnutChart) { doughnutChart.destroy(); doughnutChart = null; }
+
+      // Bar chart — subject comparison
+      const barCtx = document.getElementById('chart-bar').getContext('2d');
+      barChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Attendance %',
+            data: pcts,
+            backgroundColor: colors.map(c => c + '33'),
+            borderColor:  colors,
+            borderWidth: 1.5,
+            borderRadius: 6,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` ${ctx.parsed.y}%`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              ticks: { font: { size: 11 } }
+            },
+            y: {
+              min: 0, max: 100,
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              ticks: {
+                stepSize: 25,
+                callback: v => v + '%',
+                font: { size: 11 }
+              }
+            }
+          }
+        }
+      });
+
+      // Doughnut — total present / absent / holiday
+      const allRecords = getStore('ch_attendance');
+      const presentCount = allRecords.filter(r => r.status === 'present').length;
+      const absentCount  = allRecords.filter(r => r.status === 'absent').length;
+      const holidayCount = allRecords.filter(r => r.status === 'holiday').length;
+
+      const dCtx = document.getElementById('chart-doughnut').getContext('2d');
+      doughnutChart = new Chart(dCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Present', 'Absent', 'Holiday'],
+          datasets: [{
+            data: [presentCount, absentCount, holidayCount],
+            backgroundColor: ['rgba(34,197,94,0.25)', 'rgba(239,68,68,0.25)', 'rgba(249,115,22,0.25)'],
+            borderColor:     ['#22c55e', '#ef4444', '#f97316'],
+            borderWidth: 1.5,
+            hoverOffset: 6,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 16,
+                font: { size: 11 },
+                usePointStyle: true, pointStyleWidth: 8
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` ${ctx.label}: ${ctx.parsed} classes`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ── LOG ──
+    function renderLog() {
+      const records = [...getStore('ch_attendance')]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 20);
+
+      const log = document.getElementById('att-log');
+      if (!records.length) {
+        log.innerHTML = `<div class="att-log-empty">
+          <span>📋</span>No attendance records yet. Start by marking today's attendance!
+        </div>`;
+        return;
+      }
+
+      const statusLabel = { present: 'Present', absent: 'Absent', holiday: 'Holiday' };
+      log.innerHTML = `
+        <table class="att-log-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Subject</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${records.map(r => {
+              const s = getSubject(r.subjectId);
+              return `<tr>
+                <td style="color:var(--muted); white-space:nowrap">${formatDate(r.date)}</td>
+                <td>${s.emoji} ${s.name}</td>
+                <td>
+                  <span class="att-log-status ${r.status}">
+                    ${r.status === 'present' ? '✅' : r.status === 'absent' ? '❌' : '🏖️'}
+                    ${statusLabel[r.status]}
+                  </span>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    // ── MAIN RENDER ──
+    function renderAttendance() {
+      let totalPresent = 0, totalClasses = 0;
+      const allStats = SUBJECTS.map(s => {
+        const st = getStats(s.id);
+        totalPresent += st.present;
+        totalClasses += st.total;
+        return { s, st };
+      });
+
+      renderHero(totalPresent, totalClasses);
+      renderInsights(allStats);
+      renderSubjectCards(allStats);
+      renderLog();
+
+      // Charts — only if library loaded
+      if (typeof Chart !== 'undefined') {
+        renderCharts(allStats);
+      }
+    }
+
+    // ── QUICK MARK ──
+    function quickMark(subjectId, status) {
+      const date = new Date().toISOString().split('T')[0];
+      const records  = getStore('ch_attendance');
+      const filtered = records.filter(r => !(r.subjectId === subjectId && r.date === date));
+      filtered.push({ id: Date.now(), subjectId, status, date });
+      setStore('ch_attendance', filtered);
+      const s = getSubject(subjectId);
+      showToast(`${s.emoji} ${s.short}: ${status === 'present' ? '✅ Marked Present' : '❌ Marked Absent'}`, status === 'present' ? 'success' : 'info');
+      renderAttendance();
+    }
+
+    // ── MODAL ──
     function openMarkModal() {
-      // Build subject toggles
       const ms = document.getElementById('mark-subjects');
       ms.innerHTML = SUBJECTS.map(s => `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
-          <span style="font-weight:500; color:var(--text);">${s.emoji} ${s.name}</span>
-          <div style="display:flex; gap:8px;">
-            <button class="btn btn-sm" id="p-${s.id}" onclick="setMark(${s.id},'present')" style="background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3);">✅ Present</button>
-            <button class="btn btn-sm" id="a-${s.id}" onclick="setMark(${s.id},'absent')" style="background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.3);">❌ Absent</button>
-            <button class="btn btn-sm" id="h-${s.id}" onclick="setMark(${s.id},'holiday')" style="background:rgba(249,115,22,0.1);color:var(--orange);border:1px solid rgba(249,115,22,0.3);">🏖 Holiday</button>
+        <div class="mark-subject-row">
+          <div class="mark-subject-info">
+            <span class="subj-emoji">${s.emoji}</span>
+            <span class="subj-name">${s.name}</span>
+          </div>
+          <div class="mark-buttons">
+            <button class="mark-btn present" id="p-${s.id}" onclick="setMark(${s.id},'present')">✅ Present</button>
+            <button class="mark-btn absent"  id="a-${s.id}" onclick="setMark(${s.id},'absent')">❌ Absent</button>
+            <button class="mark-btn holiday" id="h-${s.id}" onclick="setMark(${s.id},'holiday')">🏖 Holiday</button>
           </div>
         </div>`).join('');
       window._marks = {};
@@ -97,31 +553,30 @@
       window._marks[sid] = status;
       ['p','a','h'].forEach(k => {
         const el = document.getElementById(`${k}-${sid}`);
-        if (el) el.style.opacity = '0.4';
+        if (el) el.classList.remove('selected');
       });
       const map = { present:'p', absent:'a', holiday:'h' };
       const el = document.getElementById(`${map[status]}-${sid}`);
-      if (el) el.style.opacity = '1';
+      if (el) el.classList.add('selected');
     }
 
-    function closeMarkModal() { document.getElementById('mark-modal').classList.remove('open'); }
+    function closeMarkModal() {
+      document.getElementById('mark-modal').classList.remove('open');
+    }
 
     function saveAttendance() {
-      const date = document.getElementById('m-date').value;
-      if (!date) { showToast('Please select a date!','error'); return; }
+      const date  = document.getElementById('m-date').value;
+      if (!date) { showToast('Please select a date!', 'error'); return; }
       const marks = window._marks || {};
-      if (!Object.keys(marks).length) { showToast('Please mark at least one subject!','error'); return; }
+      if (!Object.keys(marks).length) { showToast('Please mark at least one subject!', 'error'); return; }
 
-      const records = getStore('ch_attendance');
-      // Remove existing records for same date
+      const records  = getStore('ch_attendance');
       const filtered = records.filter(r => r.date !== date);
-
       Object.entries(marks).forEach(([subjectId, status]) => {
-        filtered.push({ id: Date.now()+Math.random(), subjectId: parseInt(subjectId), status, date });
+        filtered.push({ id: Date.now() + Math.random(), subjectId: parseInt(subjectId), status, date });
       });
-
       setStore('ch_attendance', filtered);
-      showToast('Attendance saved! ✅','success');
+      showToast('Attendance saved! ✅', 'success');
       closeMarkModal();
       renderAttendance();
     }
@@ -129,105 +584,11 @@
     function clearLog() {
       if (!confirm('Clear all attendance records? This cannot be undone.')) return;
       setStore('ch_attendance', []);
-      showToast('Log cleared.','info');
+      showToast('Attendance log cleared.', 'info');
       renderAttendance();
     }
 
-    function getStats(subjectId) {
-      const records = getStore('ch_attendance').filter(r => r.subjectId === subjectId && r.status !== 'holiday');
-      const present = records.filter(r => r.status === 'present').length;
-      const total = records.length;
-      const pct = total > 0 ? Math.round((present/total)*100) : 0;
-      return { present, total, absent: total - present, pct };
-    }
-
-    function neededClasses(present, total) {
-      // How many more classes to attend to reach 75%
-      const needed = Math.ceil((0.75 * total - present) / 0.25);
-      return needed > 0 ? needed : 0;
-    }
-
-    function canMiss(present, total) {
-      // How many more classes can be missed while staying above 75%
-      const max = Math.floor(total / 4);
-      const absents = total - present;
-      return Math.max(0, max - absents);
-    }
-
-    function renderAttendance() {
-      const grid = document.getElementById('att-grid');
-      let totalPresent = 0, totalClasses = 0;
-
-      grid.innerHTML = SUBJECTS.map(s => {
-        const st = getStats(s.id);
-        totalPresent += st.present; totalClasses += st.total;
-        const cls = st.pct >= 75 ? 'safe' : st.pct >= 60 ? 'warning' : 'danger';
-        const barColor = st.pct >= 75 ? 'var(--green)' : st.pct >= 60 ? 'var(--orange)' : 'var(--red)';
-        const canMissCount = canMiss(st.present, st.total);
-        const needCount = st.pct < 75 ? neededClasses(st.present, st.total) : 0;
-
-        return `<div class="att-card" style="--subj-color:${s.color}">
-          <div class="att-card-top">
-            <div>
-              <div class="att-card-title">${s.emoji} ${s.name}</div>
-              <div class="att-counts">
-                <span>✅ ${st.present} present</span>
-                <span>❌ ${st.absent} absent</span>
-                <span>📅 ${st.total} total</span>
-              </div>
-            </div>
-            <div class="att-percent ${cls}">${st.pct}%</div>
-          </div>
-          <div class="progress-wrap">
-            <div class="progress-bar" style="background:${barColor}; width:${st.pct}%;"></div>
-          </div>
-          ${st.pct < 75 && st.total > 0 ? `<div class="att-warning-bar">⚠️ Low attendance! Attend ${needCount} more class${needCount!==1?'es':''} to reach 75%.</div>` : ''}
-          ${st.pct >= 75 && st.total > 0 ? `<div class="att-safe-bar">✅ Safe! You can miss ${canMissCount} more class${canMissCount!==1?'es':''} and stay above 75%.</div>` : ''}
-          ${st.total === 0 ? `<div class="att-safe-bar" style="background:rgba(139,92,246,0.08); border-color:rgba(139,92,246,0.2); color:#a78bfa;">📋 No records yet. Start marking attendance!</div>` : ''}
-          <div class="att-actions">
-            <button class="btn btn-success btn-sm" onclick="quickMark(${s.id},'present')">✅ Present</button>
-            <button class="btn btn-danger btn-sm" onclick="quickMark(${s.id},'absent')">❌ Absent</button>
-          </div>
-        </div>`;
-      }).join('');
-
-      // Overall
-      const overallPct = totalClasses > 0 ? Math.round((totalPresent/totalClasses)*100) : 0;
-      document.getElementById('overall-pct').textContent = overallPct + '%';
-      document.getElementById('overall-pct').className = 'overall-num ' + (overallPct >= 75 ? 'safe' : overallPct >= 60 ? 'warning' : 'danger');
-      document.getElementById('overall-counts').textContent = `${totalPresent}/${totalClasses} classes`;
-      document.getElementById('overall-bar').style.width = overallPct + '%';
-      document.getElementById('overall-bar').style.background = overallPct >= 75 ? 'var(--green)' : overallPct >= 60 ? 'var(--orange)' : 'var(--red)';
-
-      // Log
-      const records = [...getStore('ch_attendance')].sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0,20);
-      const statusEmoji = { present:'✅', absent:'❌', holiday:'🏖️' };
-      const statusColor = { present:'var(--green)', absent:'var(--red)', holiday:'var(--orange)' };
-      const log = document.getElementById('att-log');
-      if (!records.length) { log.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--muted);">No records yet. Start marking attendance!</div>`; return; }
-      log.innerHTML = records.map(r => {
-        const s = getSubject(r.subjectId);
-        return `<div class="log-item">
-          <div class="log-dot" style="background:${statusColor[r.status]}"></div>
-          <span style="color:var(--muted); min-width:90px;">${formatDate(r.date)}</span>
-          <span style="flex:1;">${s.emoji} ${s.name}</span>
-          <span style="color:${statusColor[r.status]}; font-weight:600;">${statusEmoji[r.status]} ${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span>
-        </div>`;
-      }).join('');
-    }
-
-    function quickMark(subjectId, status) {
-      const date = new Date().toISOString().split('T')[0];
-      const records = getStore('ch_attendance');
-      // Remove existing entry for today + this subject
-      const filtered = records.filter(r => !(r.subjectId === subjectId && r.date === date));
-      filtered.push({ id: Date.now(), subjectId, status, date });
-      setStore('ch_attendance', filtered);
-      const s = getSubject(subjectId);
-      showToast(`${s.emoji} ${s.short}: ${status === 'present' ? '✅ Marked Present' : '❌ Marked Absent'}`, status === 'present' ? 'success' : 'info');
-      renderAttendance();
-    }
-
+    // Initial render
     renderAttendance();
   </script>
 </body>

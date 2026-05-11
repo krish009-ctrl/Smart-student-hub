@@ -67,7 +67,7 @@ app.post('/summarize', upload.single('file'), async (req, res) => {
     const prompt = prompts[mode] || prompts.summary;
 
     const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-      model: 'deepseek/deepseek-chat:free',
+      model: 'meta-llama/llama-3-8b-instruct:freeze-20240926',
       messages: [
         { role: 'user', content: prompt }
       ]

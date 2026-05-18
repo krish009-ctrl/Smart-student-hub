@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('nav-root').innerHTML = renderNav('AI Summarizer');
   document.getElementById('subject-select').innerHTML = '<option value="">No subject context</option>' + subjectSelector();
 
   // Mode selection

@@ -1,4 +1,4 @@
-﻿// redirect users if they are not logged in
+// redirect users if they are not logged in
 // This runs on EVERY page that includes auth.js
 // If the user is NOT logged in, they get sent to login.html
 // If they ARE logged in, we load their profile data
@@ -154,7 +154,7 @@ async function signupUser() {
             name: name,
             email: email,
             roll: roll,
-            branch: 'CS/IT'
+            branch: 'IT'
           }
         ]);
 

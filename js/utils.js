@@ -1,4 +1,4 @@
-﻿// shared stuff for smart student portal
+// shared stuff for smart student portal
 
 // all our subjects with colors and stuff
 const SUBJECTS = [
@@ -34,7 +34,7 @@ function renderNav(activePage) {
     </a>
     <ul class="nav-links" id="navLinks">${linksHtml}</ul>
     <div class="nav-right">
-      <span class="nav-badge">6th Sem · CS/IT</span>
+      <span class="nav-badge">6th Sem · IT</span>
       <div class="hamburger" id="hamburger" onclick="toggleNav()">
         <span></span><span></span><span></span>
       </div>
@@ -62,7 +62,7 @@ function renderHomeNav(activePage) {
     <a href="index.html" class="nav-logo">🎓 <span>Smart Student Portal</span></a>
     <ul class="nav-links" id="navLinks">${linksHtml}</ul>
     <div class="nav-right">
-      <span class="nav-badge">6th Sem · CS/IT</span>
+      <span class="nav-badge">6th Sem · IT</span>
       <div class="hamburger" id="hamburger" onclick="toggleNav()">
         <span></span><span></span><span></span>
       </div>

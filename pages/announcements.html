@@ -6,14 +6,46 @@
   <title>Announcements — Smart Student Portal</title>
   <link rel="stylesheet" href="../css/style.css"/>
   <link rel="stylesheet" href="../css/dashboard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
-<body>
-  <div id="nav-root"></div>
-  <div id="toast-container"></div>
-  <div class="page-wrapper">
-    <div class="container">
+<body class="app-page">
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-graduation-cap"></i><span>Smart<b>Portal</b></span></div>
+    <nav class="sidebar-nav">
+      <a href="../index.html" class="nav-item"><i class="fas fa-house"></i><span>Home</span></a>
+      <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="notes.html" class="nav-item"><i class="fas fa-file-alt"></i><span>Notes</span></a>
+      <a href="attendance.html" class="nav-item"><i class="fas fa-calendar-check"></i><span>Attendance</span></a>
+      <a href="timetable.html" class="nav-item"><i class="fas fa-clock"></i><span>Timetable</span></a>
+      <a href="announcements.html" class="nav-item active"><i class="fas fa-bullhorn"></i><span>Announcements</span></a>
+      <a href="ai-summarizer.html" class="nav-item"><i class="fas fa-robot"></i><span>AI Summarizer</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">S</div>
+        <div>
+          <p id="userName">Student</p><small id="userRoll">Roll No.</small>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="logoutUser()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+  </aside>
+
+  <!-- Mobile top bar -->
+  <div class="topbar">
+    <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <span class="topbar-title">Announcements</span>
+    <button class="logout-btn" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i></button>
+  </div>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main-content">
+    <div id="toast-container"></div>
+
       <div class="page-header">
-        <div class="breadcrumb"><a href="../index.html">Home</a> › Announcements</div>
         <h1>📢 Announcements</h1>
         <p>College notices, exam updates, and important messages from faculty</p>
       </div>
@@ -36,8 +68,8 @@
         <h3>No announcements</h3>
         <p>Nothing posted yet. Be the first to add one!</p>
       </div>
-    </div>
-  </div>
+
+  </main>
 
   <!-- MODAL -->
   <div class="modal-overlay" id="ann-modal">
@@ -74,9 +106,11 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
   <script src="../js/utils.js"></script>
+  <script src="../js/auth.js"></script>
   <script>
-    document.getElementById('nav-root').innerHTML = renderNav('Announcements');
     let activeType = 'all';
 
     document.querySelectorAll('.type-btn').forEach(btn => {
